@@ -1,0 +1,52 @@
+name: BanFromClaim
+version: ${project.version}
+authors: [Baktus_79]
+main: no.vestlandetmc.BanFromClaim.BfcPlugin
+description: Addon for GriefPrevention that let you ban players from entering your claim
+website: www.vestlandetmc.no
+prefix: BanFromClaim
+api-version: 1.13
+softdepend: [GriefPrevention]
+commands:
+  banfromclaim:
+    description: Ban a player from your claim
+    aliases:
+    - bfc
+    - banfc
+    permission: bfc.ban
+    permission-message: §cSorry, but you do not have permissions to do that.
+    usage: /<command> [player]
+  unbanfromclaim:
+    description: Ban a player from your claim
+    aliases:
+    - ubfc
+    - unbanfc
+    permission: bfc.unban
+    permission-message: §cSorry, but you do not have permissions to do that.
+    usage: /<command> [player]
+  banfromclaimlist:
+    description: Displays a list of banned players in your claim
+    aliases:
+    - bfcl
+    - bfclist
+    permission: bfc.list
+    permission-message: §cSorry, but you do not have permissions to do that.
+    usage: /<command>
+permissions:
+  bfc.admin:
+    description: Give you access to everything
+    default: op
+    children:
+      bfc.ban: true
+      bfc.unban: true
+      bfc.list: true
+  bfc.ban:
+    description: Give you access to /bfc command
+    default: op
+  bfc.unban:
+    description: Give you access to /ubfc command
+    default: op
+  bfc.list:
+    description: Give you access to /ubfc command
+    default: op
+    
