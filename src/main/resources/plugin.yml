@@ -40,6 +40,14 @@ permissions:
       bfc.ban: true
       bfc.unban: true
       bfc.list: true
+      bfc.bypass: true
+  bfc.use:
+    description: Give you access to user commands
+    default: op
+    children:
+      bfc.ban: true
+      bfc.unban: true
+      bfc.list: true
   bfc.ban:
     description: Give you access to /bfc command
     default: op
@@ -47,6 +55,9 @@ permissions:
     description: Give you access to /ubfc command
     default: op
   bfc.list:
-    description: Give you access to /ubfc command
+    description: Give you access to /bfcl command
+    default: op
+  bfc.bypass:
+    description: With bypass you can not be banned
     default: op
     

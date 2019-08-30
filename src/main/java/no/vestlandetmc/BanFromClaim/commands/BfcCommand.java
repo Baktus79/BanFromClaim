@@ -52,6 +52,11 @@ public class BfcCommand implements CommandExecutor {
 			}
 		}
 
+		if(bannedPlayer.hasPermission("bfc.bypass")) {
+			MessageHandler.sendMessage(player, "&4" + bannedPlayer.getName() + " &cis protected and can not be banned from your claim.");
+			return true;
+		}
+
 		if(!allowBan) {
 			MessageHandler.sendMessage(player, "&cThis is not your claim or you do not have PermissionTrust.");
 			return true;

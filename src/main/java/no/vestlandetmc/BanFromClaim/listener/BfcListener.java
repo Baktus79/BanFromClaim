@@ -21,6 +21,8 @@ public class BfcListener implements Listener {
 		final Location loc = e.getTo();
 		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(loc, true, null);
 
+		if(player.hasPermission("bfc.bypass")) { return; }
+
 		if(claim != null) {
 			final String claimID = claim.getID().toString();
 			if(playerBanned(player, claim, claimID)) {
