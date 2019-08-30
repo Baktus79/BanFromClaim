@@ -1,5 +1,7 @@
 package no.vestlandetmc.BanFromClaim.handler;
 
+import java.util.ArrayList;
+
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -9,8 +11,14 @@ import no.vestlandetmc.BanFromClaim.BfcPlugin;
 
 public class MessageHandler {
 
+	public static ArrayList<String> spamMessageClaim = new ArrayList<>();
+
 	public static void sendAction(Player player, String message) {
 		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(colorize(message)));
+	}
+
+	public static void sendTitle(Player player, String title, String subtitle) {
+		player.sendTitle(colorize(title), colorize(subtitle), 20, 3 * 20, 10);
 	}
 
 	public static void sendMessage(Player player, String message) {

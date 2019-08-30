@@ -40,9 +40,14 @@ public class UnbfcCommand implements CommandExecutor {
 		}
 
 		final String accessDenied = claim.allowGrantPermission(player);
+		boolean allowBan = false;
+
+		if(accessDenied == null) { allowBan = true; }
+		if(player.hasPermission("bfc.admin")) { allowBan = true; }
+
 		OfflinePlayer bPlayer = null;
 
-		if(!player.hasPermission("bfc.admin") || accessDenied != null) {
+		if(!allowBan) {
 			MessageHandler.sendMessage(player, "&cThis is not your claim or you do not have PermissionTrust.");
 			return true;
 
@@ -50,16 +55,18 @@ public class UnbfcCommand implements CommandExecutor {
 			final String claimOwner = claim.getOwnerName();
 			final String claimID = claim.getID().toString();
 
-			for(final String bp : listPlayers(claim.getID().toString())) {
-				final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(UUID.fromString(bp));
-				if(bannedPlayer.getName().equalsIgnoreCase(args[0])) {
-					bPlayer = bannedPlayer;
-					if(setClaimData(player, claimID, bp, false)) {
-						MessageHandler.sendMessage(player, "&6" + bannedPlayer.getName() + " &ehas been unbanned from your claim!");
-						if(bannedPlayer.isOnline()) {
-							MessageHandler.sendMessage(bannedPlayer.getPlayer(), "&eYou have been unbanned from &6" + claimOwner + "'s &eclaim by &6" + player.getName() + "&e.");
+			if(listPlayers(claim.getID().toString()) != null) {
+				for(final String bp : listPlayers(claim.getID().toString())) {
+					final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(UUID.fromString(bp));
+					if(bannedPlayer.getName().equalsIgnoreCase(args[0])) {
+						bPlayer = bannedPlayer;
+						if(setClaimData(player, claimID, bp, false)) {
+							MessageHandler.sendMessage(player, "&6" + bannedPlayer.getName() + " &ehas been unbanned from your claim!");
+							if(bannedPlayer.isOnline()) {
+								MessageHandler.sendMessage(bannedPlayer.getPlayer(), "&eYou have been unbanned from &6" + claimOwner + "'s &eclaim by &6" + player.getName() + "&e.");
+							}
+							return true;
 						}
-						return true;
 					}
 				}
 			}

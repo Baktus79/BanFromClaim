@@ -51,10 +51,14 @@ public class BfclistCommand implements CommandExecutor {
 		}
 
 		final String accessDenied = claim.allowGrantPermission(player);
+		boolean allowBan = false;
+
+		if(accessDenied == null) { allowBan = true; }
+		if(player.hasPermission("bfc.admin")) { allowBan = true; }
 
 		int totalPage = 1;
 
-		if(!player.hasPermission("bfc.admin") || accessDenied != null) {
+		if(!allowBan) {
 			MessageHandler.sendMessage(player, "&cThis is not your claim or you do not have PermissionTrust.");
 			return true;
 

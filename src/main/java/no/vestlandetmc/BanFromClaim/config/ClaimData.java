@@ -54,14 +54,13 @@ public class ClaimData {
 	private void removeData(String claimID, String bannedUUID) {
 		final List<String> uuid = new ArrayList<>();
 
-		if(cfg.getStringList(prefix + "." + claimID).isEmpty()) {
-			cfg.set(claimID, null);
-			saveDatafile();
-		} else {
+		if(!cfg.getStringList(prefix + "." + claimID).isEmpty()) {
 			uuid.addAll(cfg.getStringList(prefix + "." + claimID));
 			if(uuid.contains(bannedUUID)) {
 				uuid.remove(bannedUUID);
 				cfg.set(prefix + "." + claimID, uuid);
+
+				if(cfg.getStringList(prefix + "." + claimID).isEmpty()) { cfg.set(prefix + "." + claimID, null); }
 				saveDatafile();
 			}
 		}

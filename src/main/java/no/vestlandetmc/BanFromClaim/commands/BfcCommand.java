@@ -37,18 +37,22 @@ public class BfcCommand implements CommandExecutor {
 
 		final Player bannedPlayer = Bukkit.getPlayer(args[0]);
 		final String accessDenied = claim.allowGrantPermission(player);
+		boolean allowBan = false;
+
+		if(accessDenied == null) { allowBan = true; }
+		if(player.hasPermission("bfc.admin")) { allowBan = true; }
 
 		if(bannedPlayer == null) {
 			MessageHandler.sendMessage(player, "&cMust enter a valid player name or the player is offline.");
 			return true;
 		} else {
 			if(bannedPlayer == player) {
-				MessageHandler.sendMessage(player, "&cYou can not ban yourself.");
+				MessageHandler.sendMessage(player, "&cYou can not banish yourself.");
 				return true;
 			}
 		}
 
-		if(!player.hasPermission("bfc.admin") || accessDenied != null) {
+		if(!allowBan) {
 			MessageHandler.sendMessage(player, "&cThis is not your claim or you do not have PermissionTrust.");
 			return true;
 		} else {
