@@ -43,8 +43,6 @@ public class BfcListener implements Listener {
 				}
 			}
 		}
-
-
 	}
 
 	private boolean playerBanned(Player player, Claim claim, String claimID) {
