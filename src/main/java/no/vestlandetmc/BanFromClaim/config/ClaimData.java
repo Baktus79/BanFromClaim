@@ -8,7 +8,9 @@ import java.util.List;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
+import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
 public class ClaimData {
 
@@ -117,6 +119,27 @@ public class ClaimData {
 		if(BfcPlugin.getInstance().getDataFile().getKeys(false).isEmpty()) {
 			BfcPlugin.getInstance().getDataFile().createSection("bfc_claim_data");
 			saveDatafile();
+		}
+	}
+
+	public static void cleanDatafile() {
+		boolean clean = false;
+		final String prefix = BfcPlugin.getInstance().getDescription().getPrefix();
+
+		if(!BfcPlugin.getInstance().getDataFile().getKeys(false).isEmpty()) {
+			if(!BfcPlugin.getInstance().getDataFile().getConfigurationSection("bfc_claim_data").getKeys(false).isEmpty()) {
+				for(final String claimID : BfcPlugin.getInstance().getDataFile().getConfigurationSection("bfc_claim_data").getKeys(false)) {
+					if(GriefPrevention.instance.dataStore.getClaim(Long.parseLong(claimID)) == null) {
+						BfcPlugin.getInstance().getDataFile().set("bfc_claim_data." + claimID, null);
+						clean = true;
+
+					}
+				}
+			}
+
+			saveDatafile();
+
+			if(clean) { MessageHandler.sendConsole("&2[" + prefix + "] &eData storage has been cleared of old removed claims..."); }
 		}
 	}
 }

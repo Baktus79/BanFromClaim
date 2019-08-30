@@ -8,6 +8,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import no.vestlandetmc.BanFromClaim.commands.BfcCommand;
 import no.vestlandetmc.BanFromClaim.commands.BfclistCommand;
@@ -55,6 +56,14 @@ public class BfcPlugin extends JavaPlugin {
 
 		createDatafile();
 		ClaimData.createSection();
+
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				ClaimData.cleanDatafile();
+			}
+
+		}.runTaskTimer(this, (30 * 20L), (3600 * 20L));
 
 		new UpdateNotification(70897) {
 
