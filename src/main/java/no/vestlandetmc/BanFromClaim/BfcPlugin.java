@@ -56,7 +56,7 @@ public class BfcPlugin extends JavaPlugin {
 		createDatafile();
 		ClaimData.createSection();
 
-		new UpdateNotification(67723) {
+		new UpdateNotification(70897) {
 
 			@Override
 			public void onUpdateAvailable() {
