@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
+import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
 public class BfclistCommand implements CommandExecutor {
@@ -40,13 +41,13 @@ public class BfclistCommand implements CommandExecutor {
 				this.countFrom = (5 * number) - 5;
 			}
 			else {
-				MessageHandler.sendMessage(player, "&cType a valid number.");
+				MessageHandler.sendMessage(player, Messages.UNVALID_NUMBER);
 				return true;
 			}
 		}
 
 		if(claim == null) {
-			MessageHandler.sendMessage(player, "&cPlease make sure you are standing inside your claim.");
+			MessageHandler.sendMessage(player, Messages.OUTSIDE_CLAIM);
 			return true;
 		}
 
@@ -59,13 +60,13 @@ public class BfclistCommand implements CommandExecutor {
 		int totalPage = 1;
 
 		if(!allowBan) {
-			MessageHandler.sendMessage(player, "&cThis is not your claim or you do not have PermissionTrust.");
+			MessageHandler.sendMessage(player, Messages.NO_ACCESS);
 			return true;
 
 		} else {
-			MessageHandler.sendMessage(player, "&e---- ===== [ &6Banned Players &e] ===== ----");
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_HEADER, null, player.getDisplayName(), claim.getOwnerName()));
 			if(listPlayers(claim.getID().toString()) == null) {
-				MessageHandler.sendMessage(player, "&cThere are no banned players in this claim.");
+				MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_EMPTY, null, player.getDisplayName(), claim.getOwnerName()));
 				return true;
 			} else {
 				totalPage = (listPlayers(claim.getID().toString()).size() / 5) + 1;

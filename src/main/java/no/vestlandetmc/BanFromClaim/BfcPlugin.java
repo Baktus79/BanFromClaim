@@ -14,6 +14,7 @@ import no.vestlandetmc.BanFromClaim.commands.BfcCommand;
 import no.vestlandetmc.BanFromClaim.commands.BfclistCommand;
 import no.vestlandetmc.BanFromClaim.commands.UnbfcCommand;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
+import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 import no.vestlandetmc.BanFromClaim.handler.UpdateNotification;
 import no.vestlandetmc.BanFromClaim.listener.BfcListener;
@@ -55,6 +56,7 @@ public class BfcPlugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new BfcListener(), this);
 
 		createDatafile();
+		Messages.initialize();
 		ClaimData.createSection();
 
 		new BukkitRunnable() {
@@ -70,8 +72,8 @@ public class BfcPlugin extends JavaPlugin {
 			@Override
 			public void onUpdateAvailable() {
 				MessageHandler.sendConsole("&c-----------------------");
-				MessageHandler.sendConsole("&6[" + getDescription().getPrefix() + "] &7Version " + getLatestVersion() + " is now available!");
-				MessageHandler.sendConsole("&6[" + getDescription().getPrefix() + "] &7Download the update at https://www.spigotmc.org/resources/" + getProjectId());
+				MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &7Version " + getLatestVersion() + " is now available!");
+				MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &7Download the update at https://www.spigotmc.org/resources/" + getProjectId());
 				MessageHandler.sendConsole("&c-----------------------");
 			}
 		}.runTaskAsynchronously(this);

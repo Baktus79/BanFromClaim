@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
+import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
 public class BfcCommand implements CommandExecutor {
@@ -26,12 +27,12 @@ public class BfcCommand implements CommandExecutor {
 		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(loc, true, null);
 
 		if(args.length == 0) {
-			MessageHandler.sendMessage(player, "&cYou have to type in a player name.");
+			MessageHandler.sendMessage(player, Messages.NO_ARGUMENTS);
 			return true;
 		}
 
 		if(claim == null) {
-			MessageHandler.sendMessage(player, "&cPlease make sure you are standing inside your claim.");
+			MessageHandler.sendMessage(player, Messages.OUTSIDE_CLAIM);
 			return true;
 		}
 
@@ -43,22 +44,22 @@ public class BfcCommand implements CommandExecutor {
 		if(player.hasPermission("bfc.admin")) { allowBan = true; }
 
 		if(bannedPlayer == null) {
-			MessageHandler.sendMessage(player, "&cMust enter a valid player name or the player is offline.");
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], player.getDisplayName(), null));
 			return true;
 		} else {
 			if(bannedPlayer == player) {
-				MessageHandler.sendMessage(player, "&cYou can not banish yourself.");
+				MessageHandler.sendMessage(player, Messages.BAN_SELF);
 				return true;
 			}
 		}
 
 		if(bannedPlayer.hasPermission("bfc.bypass")) {
-			MessageHandler.sendMessage(player, "&4" + bannedPlayer.getName() + " &cis protected and can not be banned from your claim.");
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, bannedPlayer.getDisplayName(), null, null));
 			return true;
 		}
 
 		if(!allowBan) {
-			MessageHandler.sendMessage(player, "&cThis is not your claim or you do not have PermissionTrust.");
+			MessageHandler.sendMessage(player, Messages.NO_ACCESS);
 			return true;
 		} else {
 			final String claimOwner = claim.getOwnerName();
@@ -69,10 +70,10 @@ public class BfcCommand implements CommandExecutor {
 						GriefPrevention.instance.ejectPlayer(bannedPlayer);
 					}
 				}
-				MessageHandler.sendMessage(player, "&6" + bannedPlayer.getName() + " &ehas been banish from your claim!");
-				MessageHandler.sendMessage(bannedPlayer, "&cYou have been banned from &4" + claimOwner + "'s &cclaim by &4" + player.getName() + "&c.");
+				MessageHandler.sendMessage(player, Messages.placeholders(Messages.BANNED, bannedPlayer.getDisplayName(), null, null));
+				MessageHandler.sendMessage(bannedPlayer, Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getDisplayName(), player.getDisplayName(), claimOwner));
 			} else {
-				MessageHandler.sendMessage(player, "&cThis player is already banned from your claim.");
+				MessageHandler.sendMessage(player, Messages.ALREADY_BANNED);
 			}
 
 		}

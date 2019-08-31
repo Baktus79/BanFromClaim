@@ -137,9 +137,10 @@ public class ClaimData {
 				}
 			}
 
-			saveDatafile();
-
-			if(clean) { MessageHandler.sendConsole("&2[" + prefix + "] &eData storage has been cleared of old removed claims..."); }
+			if(clean) {
+				saveDatafile();
+				MessageHandler.sendConsole("&2[" + prefix + "] &eData storage has been cleared of old removed claims...");
+			}
 		}
 	}
 }

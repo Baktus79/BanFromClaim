@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
+import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
 public class UnbfcCommand implements CommandExecutor {
@@ -30,12 +31,12 @@ public class UnbfcCommand implements CommandExecutor {
 		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(loc, true, null);
 
 		if(args.length == 0) {
-			MessageHandler.sendMessage(player, "&cYou have to type in a player name.");
+			MessageHandler.sendMessage(player, Messages.NO_ARGUMENTS);
 			return true;
 		}
 
 		if(claim == null) {
-			MessageHandler.sendMessage(player, "&cPlease make sure you are standing inside your claim.");
+			MessageHandler.sendMessage(player, Messages.OUTSIDE_CLAIM);
 			return true;
 		}
 
@@ -48,7 +49,7 @@ public class UnbfcCommand implements CommandExecutor {
 		OfflinePlayer bPlayer = null;
 
 		if(!allowBan) {
-			MessageHandler.sendMessage(player, "&cThis is not your claim or you do not have PermissionTrust.");
+			MessageHandler.sendMessage(player, Messages.NO_ACCESS);
 			return true;
 
 		} else {
@@ -61,9 +62,9 @@ public class UnbfcCommand implements CommandExecutor {
 					if(bannedPlayer.getName().equalsIgnoreCase(args[0])) {
 						bPlayer = bannedPlayer;
 						if(setClaimData(player, claimID, bp, false)) {
-							MessageHandler.sendMessage(player, "&6" + bannedPlayer.getName() + " &ehas been unbanned from your claim!");
+							MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNBANNED, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
 							if(bannedPlayer.isOnline()) {
-								MessageHandler.sendMessage(bannedPlayer.getPlayer(), "&eYou have been unbanned from &6" + claimOwner + "'s &eclaim by &6" + player.getName() + "&e.");
+								MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.UNBANNED_TARGET, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
 							}
 							return true;
 						}
@@ -72,7 +73,7 @@ public class UnbfcCommand implements CommandExecutor {
 			}
 		}
 
-		if(bPlayer == null) { MessageHandler.sendMessage(player, "&4" + args[0] + " &cis not a valid player name or not banned at your claim."); }
+		if(bPlayer == null) { MessageHandler.sendMessage(player, Messages.placeholders(Messages.NOT_BANNED, args[0], player.getDisplayName(), null)); }
 
 		return true;
 	}
