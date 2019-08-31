@@ -21,7 +21,9 @@ public class Messages extends ConfigHandler {
 	NOT_BANNED,
 	UNVALID_NUMBER,
 	LIST_HEADER,
-	LIST_EMPTY;
+	LIST_EMPTY,
+	TITLE_MESSAGE,
+	SUBTITLE_MESSAGE;
 
 	private void onLoad() {
 
@@ -40,6 +42,8 @@ public class Messages extends ConfigHandler {
 		UNVALID_NUMBER = getString("unvalid-number");
 		LIST_HEADER = getString("list-header");
 		LIST_EMPTY = getString("list-empty");
+		TITLE_MESSAGE = getString("title-message");
+		SUBTITLE_MESSAGE = getString("subtitle-message");
 
 	}
 

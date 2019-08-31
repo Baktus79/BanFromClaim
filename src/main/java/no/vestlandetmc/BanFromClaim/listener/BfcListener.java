@@ -12,6 +12,7 @@ import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
+import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 import no.vestlandetmc.BanFromClaim.handler.UpdateNotification;
 
@@ -31,7 +32,7 @@ public class BfcListener implements Listener {
 				GriefPrevention.instance.ejectPlayer(player);
 
 				if(!MessageHandler.spamMessageClaim.contains(player.getUniqueId().toString())) {
-					MessageHandler.sendTitle(player, "&4BANNED", "&CYou are banned from this claim");
+					MessageHandler.sendTitle(player, Messages.TITLE_MESSAGE, Messages.SUBTITLE_MESSAGE);
 					MessageHandler.spamMessageClaim.add(player.getUniqueId().toString());
 
 

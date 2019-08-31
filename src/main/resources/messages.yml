@@ -13,3 +13,5 @@ not-banned: '&4%target% &cis not a valid player name or not banned at your claim
 unvalid-number: '&cType a valid number.'
 list-header: '&e-- === [ &6%claimowner%''s Claim - Banned Players &e] === --'
 list-empty: '&cThere are no banned players in this claim.'
+title-message: '&4BANNED'
+subtitle-message: '&cYou are banned from this claim'
