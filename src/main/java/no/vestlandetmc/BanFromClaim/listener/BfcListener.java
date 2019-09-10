@@ -14,6 +14,7 @@ import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
+import no.vestlandetmc.BanFromClaim.handler.Particles;
 import no.vestlandetmc.BanFromClaim.handler.UpdateNotification;
 
 public class BfcListener implements Listener {
@@ -29,6 +30,7 @@ public class BfcListener implements Listener {
 		if(claim != null) {
 			final String claimID = claim.getID().toString();
 			if(playerBanned(player, claim, claimID)) {
+				Particles.wall(player.getLocation());
 				GriefPrevention.instance.ejectPlayer(player);
 
 				if(!MessageHandler.spamMessageClaim.contains(player.getUniqueId().toString())) {
