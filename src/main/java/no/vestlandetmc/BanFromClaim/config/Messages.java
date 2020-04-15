@@ -11,6 +11,7 @@ public class Messages extends ConfigHandler {
 	OUTSIDE_CLAIM,
 	NO_ARGUMENTS,
 	BAN_SELF,
+	BAN_OWNER,
 	PROTECTED,
 	NO_ACCESS,
 	BANNED,
@@ -31,6 +32,7 @@ public class Messages extends ConfigHandler {
 		OUTSIDE_CLAIM = getString("outside-claim");
 		NO_ARGUMENTS = getString("no-arguments");
 		BAN_SELF = getString("ban-self");
+		BAN_OWNER = getString("ban-owner");
 		PROTECTED = getString("protected");
 		NO_ACCESS = getString("no-access");
 		BANNED = getString("banned");

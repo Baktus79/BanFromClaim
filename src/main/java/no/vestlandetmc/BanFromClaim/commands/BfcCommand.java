@@ -46,11 +46,12 @@ public class BfcCommand implements CommandExecutor {
 		if(bannedPlayer == null) {
 			MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], player.getDisplayName(), null));
 			return true;
-		} else {
-			if(bannedPlayer == player) {
-				MessageHandler.sendMessage(player, Messages.BAN_SELF);
-				return true;
-			}
+		} else if(bannedPlayer == player) {
+			MessageHandler.sendMessage(player, Messages.BAN_SELF);
+			return true;
+		} else if(bannedPlayer.getName().equals(claim.getOwnerName())) {
+			MessageHandler.sendMessage(player, Messages.BAN_OWNER);
+			return true;
 		}
 
 		if(bannedPlayer.hasPermission("bfc.bypass")) {
