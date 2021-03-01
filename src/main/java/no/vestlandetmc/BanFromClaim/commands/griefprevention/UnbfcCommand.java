@@ -1,4 +1,4 @@
-package no.vestlandetmc.BanFromClaim.commands;
+package no.vestlandetmc.BanFromClaim.commands.griefprevention;
 
 import java.util.List;
 import java.util.UUID;

@@ -3,7 +3,7 @@ unvalid-playername: '&c%target% is not a valid player name or the player is offl
 outside-claim: '&cPlease make sure you are standing inside your claim.'
 ban-self: '&cYou can not banish yourself.'
 ban-owner: '&cYou can not banish the owner of this claim.'
-protected: '&4%target% %&cis protected and can not be banned from your claim.'
+protected: '&4%target% &cis protected and can not be banned from your claim.'
 no-access: '&cThis is not your claim or you do not have PermissionTrust.'
 banned: '&6%target% &ehas been banish from your claim!'
 banned-target: '&cYou have been banned from &4 %claimowner%''s &cclaim by &4%source%&c.'

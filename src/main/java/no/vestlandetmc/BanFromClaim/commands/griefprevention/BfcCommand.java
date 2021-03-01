@@ -1,4 +1,4 @@
-package no.vestlandetmc.BanFromClaim.commands;
+package no.vestlandetmc.BanFromClaim.commands.griefprevention;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

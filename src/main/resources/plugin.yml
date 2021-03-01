@@ -6,7 +6,7 @@ description: Addon for GriefPrevention that let you ban players from entering yo
 website: www.vestlandetmc.no
 prefix: BanFromClaim
 api-version: 1.13
-softdepend: [GriefPrevention]
+softdepend: [GriefPrevention, GriefDefender]
 commands:
   banfromclaim:
     description: Ban a player from your claim
