@@ -1,5 +1,5 @@
 no-arguments: '&cYou have to type in a player name.'
-unvalid-playername: '&c%target% is not a valid player name or the player is offline.'
+unvalid-playername: '&c%target% is not a valid player name.'
 outside-claim: '&cPlease make sure you are standing inside your claim.'
 ban-self: '&cYou can not banish yourself.'
 ban-owner: '&cYou can not banish the owner of this claim.'
