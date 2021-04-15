@@ -17,9 +17,12 @@ import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfcCommand;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfclistCommand;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.UnbfcCommand;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
+import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
+import no.vestlandetmc.BanFromClaim.handler.CombatScheduler;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 import no.vestlandetmc.BanFromClaim.handler.UpdateNotification;
+import no.vestlandetmc.BanFromClaim.listener.CombatMode;
 import no.vestlandetmc.BanFromClaim.listener.GDListener;
 import no.vestlandetmc.BanFromClaim.listener.GPListener;
 import no.vestlandetmc.BanFromClaim.listener.PlayerListener;
@@ -74,7 +77,13 @@ public class BfcPlugin extends JavaPlugin {
 
 		createDatafile();
 		Messages.initialize();
+		Config.initialize();
 		ClaimData.createSection();
+
+		if(Config.COMBAT_ENABLED) {
+			this.getServer().getPluginManager().registerEvents(new CombatMode(), this);
+			new CombatScheduler().runTaskTimer(this, 0L, 20L);
+		}
 
 		new BukkitRunnable() {
 			@Override
