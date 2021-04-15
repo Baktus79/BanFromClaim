@@ -1,8 +1,8 @@
 package no.vestlandetmc.BanFromClaim.listener;
 
-import org.bukkit.Bukkit;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,10 +22,11 @@ public class GPListener implements Listener {
 	public void onPlayerEnterClaim(PlayerMoveEvent e) {
 		final Location locFrom = e.getFrom();
 		final Location locTo = e.getTo();
+
 		if(locFrom.getBlock().equals(locTo.getBlock())) { return; }
+
 		final Player player = e.getPlayer();
 
-		final Location loc = e.getTo();
 		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(locTo, true, null);
 		final UUID ownerUUID =  claim.ownerID;
 		boolean hasAttacked = false;
