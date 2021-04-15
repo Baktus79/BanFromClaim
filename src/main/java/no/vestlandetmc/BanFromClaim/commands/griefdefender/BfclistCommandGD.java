@@ -58,9 +58,10 @@ public class BfclistCommandGD implements CommandExecutor {
 		}
 
 		final boolean isManager = claim.getUserTrusts(TrustTypes.MANAGER).contains(player.getUniqueId());
+		final boolean isOwner = claim.getOwnerUniqueId().equals(player.getUniqueId());
 		boolean allowBan = false;
 
-		if(isManager) { allowBan = true; }
+		if(isOwner || isManager) { allowBan = true; }
 		else if(player.hasPermission("bfc.admin")) { allowBan = true; }
 
 		int totalPage = 1;

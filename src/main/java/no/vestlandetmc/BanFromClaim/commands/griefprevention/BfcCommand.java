@@ -2,6 +2,7 @@ package no.vestlandetmc.BanFromClaim.commands.griefprevention;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -36,14 +37,15 @@ public class BfcCommand implements CommandExecutor {
 			return true;
 		}
 
-		final Player bannedPlayer = Bukkit.getPlayer(args[0]);
+		@SuppressWarnings("deprecation")
+		final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(args[0]);
 		final String accessDenied = claim.allowGrantPermission(player);
 		boolean allowBan = false;
 
 		if(accessDenied == null) { allowBan = true; }
 		if(player.hasPermission("bfc.admin")) { allowBan = true; }
 
-		if(bannedPlayer == null) {
+		if(!bannedPlayer.hasPlayedBefore()) {
 			MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], player.getDisplayName(), null));
 			return true;
 		} else if(bannedPlayer == player) {
@@ -54,9 +56,11 @@ public class BfcCommand implements CommandExecutor {
 			return true;
 		}
 
-		if(bannedPlayer.hasPermission("bfc.bypass")) {
-			MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, bannedPlayer.getDisplayName(), null, null));
-			return true;
+		if(bannedPlayer.isOnline()) {
+			if(bannedPlayer.getPlayer().hasPermission("bfc.bypass")) {
+				MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, bannedPlayer.getPlayer().getDisplayName(), null, null));
+				return true;
+			}
 		}
 
 		if(!allowBan) {
@@ -66,17 +70,20 @@ public class BfcCommand implements CommandExecutor {
 			final String claimOwner = claim.getOwnerName();
 
 			if(setClaimData(player, claim.getID().toString(), bannedPlayer.getUniqueId().toString(), true)) {
-				if(GriefPrevention.instance.dataStore.getClaimAt(bannedPlayer.getLocation(), true, claim) != null) {
-					if(GriefPrevention.instance.dataStore.getClaimAt(bannedPlayer.getLocation(), true, claim) == claim) {
-						GriefPrevention.instance.ejectPlayer(bannedPlayer);
+				if(bannedPlayer.isOnline()) {
+					if(GriefPrevention.instance.dataStore.getClaimAt(bannedPlayer.getPlayer().getLocation(), true, claim) != null) {
+						if(GriefPrevention.instance.dataStore.getClaimAt(bannedPlayer.getPlayer().getLocation(), true, claim) == claim) {
+							GriefPrevention.instance.ejectPlayer(bannedPlayer.getPlayer());
+						}
 					}
+					MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
 				}
-				MessageHandler.sendMessage(player, Messages.placeholders(Messages.BANNED, bannedPlayer.getDisplayName(), null, null));
-				MessageHandler.sendMessage(bannedPlayer, Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getDisplayName(), player.getDisplayName(), claimOwner));
+
+				MessageHandler.sendMessage(player, Messages.placeholders(Messages.BANNED, bannedPlayer.getName(), null, null));
+
 			} else {
 				MessageHandler.sendMessage(player, Messages.ALREADY_BANNED);
 			}
-
 		}
 		return true;
 	}

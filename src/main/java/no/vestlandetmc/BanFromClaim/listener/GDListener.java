@@ -1,5 +1,7 @@
 package no.vestlandetmc.BanFromClaim.listener;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -31,19 +33,24 @@ public class GDListener implements Listener {
 		final Vector3i vectorFrom = Vector3i.from(locFrom.getBlockX(), locFrom.getBlockY(), locFrom.getBlockZ());
 		final Claim claimTo = gd.getClaimManager(locTo.getWorld().getUID()).getClaimAt(vectorTo);
 		final Claim claimFrom = gd.getClaimManager(locFrom.getWorld().getUID()).getClaimAt(vectorFrom);
+		final UUID ownerUUID = claimTo.getOwnerUniqueId();
+		boolean hasAttacked = false;
+
+		if(CombatMode.ATTACKER.containsKey(player.getUniqueId()))
+			hasAttacked = CombatMode.ATTACKER.get(player.getUniqueId()).equals(ownerUUID);
 
 		if(locFrom.getBlockX() != locTo.getBlockX() || locFrom.getBlockZ() != locTo.getBlockZ()) {
 			if(player.hasPermission("bfc.bypass")) { return; }
 
 			if(!claimTo.isWilderness()) {
-				if(playerBanned(player, claimTo)) {
+				if(playerBanned(player, claimTo) && !hasAttacked) {
 					if(!claimFrom.isWilderness()) {
 						if(playerBanned(player, claimFrom)) {
 							final World world = Bukkit.getWorld(claimFrom.getWorldUniqueId());
 							final int x = claimFrom.getGreaterBoundaryCorner().getX();
 							final int z = claimFrom.getGreaterBoundaryCorner().getZ() + claimFrom.getWidth() / 2;
 							final int y = world.getHighestBlockAt(x, z).getY();
-							final Location tpLoc = new Location(world, x, y, z);
+							final Location tpLoc = new Location(world, x, y, z).add(0D, 1D, 0D);
 
 							player.teleport(tpLoc);
 						} else { player.teleport(locFrom); }

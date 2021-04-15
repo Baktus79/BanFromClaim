@@ -2,6 +2,7 @@ package no.vestlandetmc.BanFromClaim.commands.griefdefender;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -44,14 +45,16 @@ public class BfcCommandGD implements CommandExecutor {
 		}
 
 
-		final Player bannedPlayer = Bukkit.getPlayer(args[0]);
+		@SuppressWarnings("deprecation")
+		final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(args[0]);
 		final boolean isManager = claim.getUserTrusts(TrustTypes.MANAGER).contains(player.getUniqueId());
+		final boolean isOwner = claim.getOwnerUniqueId().equals(player.getUniqueId());
 		boolean allowBan = false;
 
-		if(isManager) { allowBan = true; }
+		if(isOwner || isManager) { allowBan = true; }
 		else if(player.hasPermission("bfc.admin")) { allowBan = true; }
 
-		if(bannedPlayer == null) {
+		if(!bannedPlayer.hasPlayedBefore()) {
 			MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], player.getDisplayName(), null));
 			return true;
 		} else if(bannedPlayer == player) {
@@ -62,9 +65,11 @@ public class BfcCommandGD implements CommandExecutor {
 			return true;
 		}
 
-		if(bannedPlayer.hasPermission("bfc.bypass")) {
-			MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, bannedPlayer.getDisplayName(), null, null));
-			return true;
+		if(bannedPlayer.isOnline()) {
+			if(bannedPlayer.getPlayer().hasPermission("bfc.bypass")) {
+				MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, bannedPlayer.getPlayer().getDisplayName(), null, null));
+				return true;
+			}
 		}
 
 		if(!allowBan) {
@@ -74,20 +79,24 @@ public class BfcCommandGD implements CommandExecutor {
 			final String claimOwner = claim.getOwnerName();
 
 			if(setClaimData(player, claim.getUniqueId().toString(), bannedPlayer.getUniqueId().toString(), true)) {
-				final Location bannedLoc = bannedPlayer.getLocation();
-				final Vector3i bannedVec = Vector3i.from(bannedLoc.getBlockX(), bannedLoc.getBlockY(), bannedLoc.getBlockZ());
-				if(claim.contains(bannedVec)) {
-					final World world = Bukkit.getWorld(claim.getWorldUniqueId());
-					final int x = claim.getGreaterBoundaryCorner().getX();
-					final int z = claim.getGreaterBoundaryCorner().getZ() + claim.getWidth() / 2;
-					final int y = world.getHighestBlockAt(x, z).getY();
-					final Location tpLoc = new Location(world, x, y, z);
+				if(bannedPlayer.isOnline()) {
+					final Location bannedLoc = bannedPlayer.getPlayer().getLocation();
+					final Vector3i bannedVec = Vector3i.from(bannedLoc.getBlockX(), bannedLoc.getBlockY(), bannedLoc.getBlockZ());
+					if(claim.contains(bannedVec)) {
+						final World world = Bukkit.getWorld(claim.getWorldUniqueId());
+						final int x = claim.getGreaterBoundaryCorner().getX();
+						final int z = claim.getGreaterBoundaryCorner().getZ() + claim.getWidth() / 2;
+						final int y = world.getHighestBlockAt(x, z).getY();
+						final Location tpLoc = new Location(world, x, y, z);
 
-					bannedPlayer.teleport(tpLoc);
-				} else {
-					MessageHandler.sendMessage(player, Messages.placeholders(Messages.BANNED, bannedPlayer.getDisplayName(), null, null));
-					MessageHandler.sendMessage(bannedPlayer, Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getDisplayName(), player.getDisplayName(), claimOwner));
+						bannedPlayer.getPlayer().teleport(tpLoc);
+					}
+
+					MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
 				}
+
+				MessageHandler.sendMessage(player, Messages.placeholders(Messages.BANNED, bannedPlayer.getName(), null, null));
+
 			} else {
 				MessageHandler.sendMessage(player, Messages.ALREADY_BANNED);
 			}
