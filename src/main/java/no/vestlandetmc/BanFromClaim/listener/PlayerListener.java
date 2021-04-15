@@ -11,7 +11,7 @@ import no.vestlandetmc.BanFromClaim.handler.UpdateNotification;
 
 public class PlayerListener implements Listener {
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void playerJoin(PlayerJoinEvent p) {
 		final Player player = p.getPlayer();
 

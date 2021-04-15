@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import com.flowpowered.math.vector.Vector3i;
 import com.griefdefender.api.Core;
@@ -23,11 +22,12 @@ import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
 public class GDListener implements Listener {
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerEnterClaim(PlayerMoveEvent e) {
-		final Player player = e.getPlayer();
-		final Location locTo = e.getTo();
 		final Location locFrom = e.getFrom();
+		final Location locTo = e.getTo();
+		if(locFrom.getBlock().equals(locTo.getBlock())) { return; }
+		final Player player = e.getPlayer();
 		final Core gd = GriefDefender.getCore();
 		final Vector3i vectorTo = Vector3i.from(locTo.getBlockX(), locTo.getBlockY(), locTo.getBlockZ());
 		final Vector3i vectorFrom = Vector3i.from(locFrom.getBlockX(), locFrom.getBlockY(), locFrom.getBlockZ());
@@ -60,13 +60,9 @@ public class GDListener implements Listener {
 						MessageHandler.sendTitle(player, Messages.TITLE_MESSAGE, Messages.SUBTITLE_MESSAGE);
 						MessageHandler.spamMessageClaim.add(player.getUniqueId().toString());
 
-						new BukkitRunnable() {
-							@Override
-							public void run() {
-								MessageHandler.spamMessageClaim.remove(player.getUniqueId().toString());
-							}
-
-						}.runTaskLater(BfcPlugin.getInstance(), 5 * 20L);
+						Bukkit.getScheduler().runTaskLater(BfcPlugin.getInstance(), () -> {
+							MessageHandler.spamMessageClaim.remove(player.getUniqueId().toString());
+						}, 5L * 20L);
 					}
 				}
 			}

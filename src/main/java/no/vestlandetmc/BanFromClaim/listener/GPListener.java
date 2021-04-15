@@ -1,5 +1,6 @@
 package no.vestlandetmc.BanFromClaim.listener;
 
+import org.bukkit.Bukkit;
 import java.util.UUID;
 
 import org.bukkit.Location;
@@ -7,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -18,11 +18,15 @@ import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
 public class GPListener implements Listener {
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerEnterClaim(PlayerMoveEvent e) {
+		final Location locFrom = e.getFrom();
+		final Location locTo = e.getTo();
+		if(locFrom.getBlock().equals(locTo.getBlock())) { return; }
 		final Player player = e.getPlayer();
+
 		final Location loc = e.getTo();
-		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(loc, true, null);
+		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(locTo, true, null);
 		final UUID ownerUUID =  claim.ownerID;
 		boolean hasAttacked = false;
 
@@ -40,14 +44,9 @@ public class GPListener implements Listener {
 					MessageHandler.sendTitle(player, Messages.TITLE_MESSAGE, Messages.SUBTITLE_MESSAGE);
 					MessageHandler.spamMessageClaim.add(player.getUniqueId().toString());
 
-
-					new BukkitRunnable() {
-						@Override
-						public void run() {
-							MessageHandler.spamMessageClaim.remove(player.getUniqueId().toString());
-						}
-
-					}.runTaskLater(BfcPlugin.getInstance(), 5 * 20L);
+					Bukkit.getScheduler().runTaskLater(BfcPlugin.getInstance(), () -> {
+						MessageHandler.spamMessageClaim.remove(player.getUniqueId().toString());
+					}, 5L * 20L);
 				}
 			}
 		}
