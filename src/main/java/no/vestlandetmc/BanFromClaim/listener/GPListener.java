@@ -28,16 +28,17 @@ public class GPListener implements Listener {
 		final Player player = e.getPlayer();
 
 		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(locTo, true, null);
-		final UUID ownerUUID =  claim.ownerID;
-		boolean hasAttacked = false;
-
-		if(CombatMode.ATTACKER.containsKey(player.getUniqueId()))
-			hasAttacked = CombatMode.ATTACKER.get(player.getUniqueId()).equals(ownerUUID);
 
 		if(player.hasPermission("bfc.bypass")) { return; }
 
 		if(claim != null) {
+			final UUID ownerUUID =  claim.ownerID;
 			final String claimID = claim.getID().toString();
+			boolean hasAttacked = false;
+
+			if(CombatMode.ATTACKER.containsKey(player.getUniqueId()))
+				hasAttacked = CombatMode.ATTACKER.get(player.getUniqueId()).equals(ownerUUID);
+
 			if(playerBanned(player, claim, claimID) && !hasAttacked) {
 				GriefPrevention.instance.ejectPlayer(player);
 

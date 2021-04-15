@@ -26,23 +26,26 @@ public class GDListener implements Listener {
 	public void onPlayerEnterClaim(PlayerMoveEvent e) {
 		final Location locFrom = e.getFrom();
 		final Location locTo = e.getTo();
+
 		if(locFrom.getBlock().equals(locTo.getBlock())) { return; }
+
 		final Player player = e.getPlayer();
 		final Core gd = GriefDefender.getCore();
 		final Vector3i vectorTo = Vector3i.from(locTo.getBlockX(), locTo.getBlockY(), locTo.getBlockZ());
 		final Vector3i vectorFrom = Vector3i.from(locFrom.getBlockX(), locFrom.getBlockY(), locFrom.getBlockZ());
 		final Claim claimTo = gd.getClaimManager(locTo.getWorld().getUID()).getClaimAt(vectorTo);
 		final Claim claimFrom = gd.getClaimManager(locFrom.getWorld().getUID()).getClaimAt(vectorFrom);
-		final UUID ownerUUID = claimTo.getOwnerUniqueId();
-		boolean hasAttacked = false;
-
-		if(CombatMode.ATTACKER.containsKey(player.getUniqueId()))
-			hasAttacked = CombatMode.ATTACKER.get(player.getUniqueId()).equals(ownerUUID);
 
 		if(locFrom.getBlockX() != locTo.getBlockX() || locFrom.getBlockZ() != locTo.getBlockZ()) {
 			if(player.hasPermission("bfc.bypass")) { return; }
 
 			if(!claimTo.isWilderness()) {
+				final UUID ownerUUID = claimTo.getOwnerUniqueId();
+				boolean hasAttacked = false;
+
+				if(CombatMode.ATTACKER.containsKey(player.getUniqueId()))
+					hasAttacked = CombatMode.ATTACKER.get(player.getUniqueId()).equals(ownerUUID);
+
 				if(playerBanned(player, claimTo) && !hasAttacked) {
 					if(!claimFrom.isWilderness()) {
 						if(playerBanned(player, claimFrom)) {
