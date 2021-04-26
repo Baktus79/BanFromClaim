@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import no.vestlandetmc.BanFromClaim.commands.SafeSpot;
 import no.vestlandetmc.BanFromClaim.commands.griefdefender.BfcCommandGD;
 import no.vestlandetmc.BanFromClaim.commands.griefdefender.BfclistCommandGD;
 import no.vestlandetmc.BanFromClaim.commands.griefdefender.UnbfcCommandGD;
@@ -74,6 +75,7 @@ public class BfcPlugin extends JavaPlugin {
 		}
 
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+		this.getCommand("bfcsafespot").setExecutor(new SafeSpot());
 
 		createDatafile();
 		Messages.initialize();
