@@ -2,7 +2,9 @@ package no.vestlandetmc.BanFromClaim.commands.griefprevention;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,6 +13,7 @@ import org.bukkit.entity.Player;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
+import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
@@ -73,7 +76,17 @@ public class BfcCommand implements CommandExecutor {
 				if(bannedPlayer.isOnline()) {
 					if(GriefPrevention.instance.dataStore.getClaimAt(bannedPlayer.getPlayer().getLocation(), true, claim) != null) {
 						if(GriefPrevention.instance.dataStore.getClaimAt(bannedPlayer.getPlayer().getLocation(), true, claim) == claim) {
-							GriefPrevention.instance.ejectPlayer(bannedPlayer.getPlayer());
+							final World world = claim.getGreaterBoundaryCorner().getWorld();
+							final int x = claim.getGreaterBoundaryCorner().getBlockX();
+							final int z = claim.getGreaterBoundaryCorner().getBlockZ();
+							final int y = world.getHighestBlockAt(x, z).getY();
+							final Location tpLoc = new Location(world, x, y, z).add(0D, 1D, 0D);
+
+							if(tpLoc.getBlock().getType().equals(Material.AIR)) {
+								if(Config.SAFE_LOCATION != null) {
+									player.teleport(Config.SAFE_LOCATION);
+								} else { player.teleport(tpLoc.add(0D, 1D, 0D)); }
+							} else { player.teleport(tpLoc.add(0D, 1D, 0D)); }
 						}
 					}
 					MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getName(), player.getDisplayName(), claimOwner));

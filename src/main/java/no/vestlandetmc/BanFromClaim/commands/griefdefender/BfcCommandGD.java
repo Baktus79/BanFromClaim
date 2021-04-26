@@ -2,6 +2,7 @@ package no.vestlandetmc.BanFromClaim.commands.griefdefender;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -16,6 +17,7 @@ import com.griefdefender.api.claim.Claim;
 import com.griefdefender.api.claim.TrustTypes;
 
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
+import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
@@ -89,7 +91,12 @@ public class BfcCommandGD implements CommandExecutor {
 						final int y = world.getHighestBlockAt(x, z).getY();
 						final Location tpLoc = new Location(world, x, y, z);
 
-						bannedPlayer.getPlayer().teleport(tpLoc);
+
+						if(tpLoc.getBlock().getType().equals(Material.AIR)) {
+							if(Config.SAFE_LOCATION != null) {
+								bannedPlayer.getPlayer().teleport(Config.SAFE_LOCATION);
+							} else { bannedPlayer.getPlayer().teleport(tpLoc.add(0D, 1D, 0D)); }
+						}
 					}
 
 					MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
