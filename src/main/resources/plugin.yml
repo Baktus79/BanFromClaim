@@ -32,6 +32,14 @@ commands:
     permission: bfc.list
     permission-message: §cSorry, but you do not have permissions to do that.
     usage: /<command>
+  bfcsafespot:
+    description: Set new safespot
+    aliases:
+    - bfcs
+    - bfcsetsafe
+    permission: bfc.safespot
+    permission-message: §cSorry, but you do not have permissions to do that.
+    usage: /<command>
 permissions:
   bfc.admin:
     description: Give you access to everything
@@ -41,6 +49,7 @@ permissions:
       bfc.unban: true
       bfc.list: true
       bfc.bypass: true
+      bfc.safespot: true
   bfc.use:
     description: Give you access to user commands
     default: op
@@ -59,5 +68,8 @@ permissions:
     default: op
   bfc.bypass:
     description: With bypass you can not be banned
+    default: op
+  bfc.safespot:
+    description: Set new safespot
     default: op
     
