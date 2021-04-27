@@ -84,9 +84,9 @@ public class BfcCommand implements CommandExecutor {
 
 							if(tpLoc.getBlock().getType().equals(Material.AIR)) {
 								if(Config.SAFE_LOCATION != null) {
-									player.teleport(Config.SAFE_LOCATION);
-								} else { player.teleport(tpLoc.add(0D, 1D, 0D)); }
-							} else { player.teleport(tpLoc.add(0D, 1D, 0D)); }
+									bannedPlayer.getPlayer().teleport(Config.SAFE_LOCATION);
+								} else { bannedPlayer.getPlayer().teleport(tpLoc.add(0D, 1D, 0D)); }
+							} else { bannedPlayer.getPlayer().teleport(tpLoc.add(0D, 1D, 0D)); }
 						}
 					}
 					MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
