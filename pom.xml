@@ -5,7 +5,7 @@
 
 	<groupId>no.vestlandetmc.bfc</groupId>
 	<artifactId>BanFromClaim</artifactId>
-	<version>1.5.6</version>
+	<version>1.5.7</version>
 	<packaging>jar</packaging>
 
 	<name>BanFromClaim</name>
