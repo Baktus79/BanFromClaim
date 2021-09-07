@@ -1,5 +1,6 @@
 package no.vestlandetmc.BanFromClaim.handler;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -11,11 +12,15 @@ import no.vestlandetmc.BanFromClaim.listener.CombatMode;
 
 public class CombatScheduler extends BukkitRunnable {
 
+	private final HashMap<UUID, Long> TIME = new HashMap<>();
+
 	@Override
 	public void run() {
 		if(CombatMode.TIME.isEmpty()) { return; }
 
-		for(final UUID uuid : CombatMode.TIME.keySet()) {
+		this.TIME.putAll(CombatMode.TIME);
+
+		for(final UUID uuid : this.TIME.keySet()) {
 			final OfflinePlayer victim = Bukkit.getOfflinePlayer(uuid);
 			final OfflinePlayer attacker = Bukkit.getOfflinePlayer(CombatMode.ATTACKER.get(uuid));
 			final long time = CombatMode.TIME.get(uuid);
@@ -36,7 +41,6 @@ public class CombatScheduler extends BukkitRunnable {
 					MessageHandler.sendAction(victim.getPlayer(), "&4&lVICTIM " + "== " + combatLeft + " SEC ==");
 					MessageHandler.sendAction(attacker.getPlayer(), "&4&lATTACKER " + "== " + combatLeft + " SEC ==");
 				}
-
 			}
 		}
 	}

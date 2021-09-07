@@ -16,7 +16,7 @@ public class CombatMode implements Listener {
 	@EventHandler
 	public void playerHit(EntityDamageByEntityEvent e) {
 		if(!(e.getEntity() instanceof Player)) { return; }
-		else if(!(e.getDamager() instanceof Player)) { return; }
+		if(!(e.getDamager() instanceof Player)) { return; }
 
 		final Player victim = (Player) e.getEntity();
 		final Player attacker = (Player) e.getDamager();
