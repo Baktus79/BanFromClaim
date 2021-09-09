@@ -22,10 +22,9 @@ import no.vestlandetmc.BanFromClaim.handler.ParticleHandler;
 
 public class GPListener implements Listener {
 
-	final ClaimData claimData = new ClaimData();
-
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerEnterClaim(PlayerMoveEvent e) {
+		final ClaimData claimData = new ClaimData();
 		final Location locFrom = e.getFrom();
 		final Location locTo = e.getTo();
 
