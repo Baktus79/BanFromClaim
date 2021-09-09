@@ -123,7 +123,8 @@ public class GDListener implements Listener {
 	}
 
 	private boolean hasTrust(UUID player, Claim claim) {
-		if(claim.isUserTrusted(player, TrustTypes.MANAGER)) { return true; }
+		if(player.equals(claim.getOwnerUniqueId())) { return true; }
+		else if(claim.isUserTrusted(player, TrustTypes.MANAGER)) { return true; }
 		else if(claim.isUserTrusted(player, TrustTypes.BUILDER)) { return true; }
 		else { return false; }
 	}
