@@ -46,7 +46,7 @@ public class GPListener implements Listener {
 
 			if((claimData.isAllBanned(claimID) || playerBanned(player, claimID)) && !hasAttacked && !hasTrust(player, claim)) {
 				if(claim.contains(locFrom, true, false)) {
-					if(playerBanned(player, claimID)) {
+					if(playerBanned(player, claimID) || claimData.isAllBanned(claimID)) {
 						final World world = claim.getGreaterBoundaryCorner().getWorld();
 						final int x = claim.getGreaterBoundaryCorner().getBlockX();
 						final int z = claim.getGreaterBoundaryCorner().getBlockZ();
