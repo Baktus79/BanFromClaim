@@ -117,8 +117,9 @@ public class GPListener implements Listener {
 
 	private boolean hasTrust(Player player, Claim claim) {
 		final String accessDenied = claim.allowGrantPermission(player);
+		final String buildDenied = claim.allowBuild(player, Material.DIRT);
 
-		if(accessDenied != null || player.getUniqueId().equals(claim.getOwnerID())) { return true; }
+		if(accessDenied == null || buildDenied == null || player.getUniqueId().equals(claim.getOwnerID())) { return true; }
 		else { return false; }
 	}
 }
