@@ -33,12 +33,13 @@ public class BfclistCommand implements CommandExecutor {
 		final Player player = (Player) sender;
 		final Location loc = player.getLocation();
 		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(loc, true, null);
+		final ClaimData claimData = new ClaimData();
 
 		if(args.length != 0) {
 			if(isInt(args[0])) {
 				this.number = Integer.parseInt(args[0]);
 				this.countTo = 5 * number;
-				this.countFrom = (5 * number) - 5;
+				this.countFrom = 5 * number - 5;
 			}
 			else {
 				MessageHandler.sendMessage(player, Messages.UNVALID_NUMBER);
@@ -65,15 +66,21 @@ public class BfclistCommand implements CommandExecutor {
 
 		} else {
 			MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_HEADER, null, player.getDisplayName(), claim.getOwnerName()));
+
+			if(claimData.isAllBanned(claim.getID().toString())) {
+				MessageHandler.sendMessage(player, Messages.LIST_BAN_ALL);
+				return true;
+			}
+
 			if(listPlayers(claim.getID().toString()) == null) {
 				MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_EMPTY, null, player.getDisplayName(), claim.getOwnerName()));
 				return true;
 			} else {
-				totalPage = (listPlayers(claim.getID().toString()).size() / 5) + 1;
+				totalPage = listPlayers(claim.getID().toString()).size() / 5 + 1;
 				for(int i = 0; i < listPlayers(claim.getID().toString()).toArray().length; i++) {
 					if(this.number > totalPage || this.number == 0) {
 						this.countTo = 5 * totalPage;
-						this.countFrom = (5 * totalPage) - 5;
+						this.countFrom = 5 * totalPage - 5;
 						this.number = totalPage;
 					}
 

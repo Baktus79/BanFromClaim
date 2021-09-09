@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import com.griefdefender.api.Core;
 import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.claim.Claim;
+import com.griefdefender.api.claim.TrustTypes;
 import com.griefdefender.lib.flowpowered.math.vector.Vector3i;
 
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
@@ -27,6 +28,7 @@ public class GDListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerEnterClaim(PlayerMoveEvent e) {
+		final ClaimData claimData = new ClaimData();
 		final Location locFrom = e.getFrom();
 		final Location locTo = e.getTo();
 
@@ -50,7 +52,7 @@ public class GDListener implements Listener {
 				if(CombatMode.ATTACKER.containsKey(player.getUniqueId()))
 					hasAttacked = CombatMode.ATTACKER.get(player.getUniqueId()).equals(ownerUUID);
 
-				if(playerBanned(player, claimTo) && !hasAttacked) {
+				if((claimData.isAllBanned(claimTo.getUniqueId().toString()) || playerBanned(player, claimTo)) && !hasAttacked && !hasTrust(player.getUniqueId(), claimTo)) {
 					if(!claimFrom.isWilderness()) {
 						if(playerBanned(player, claimFrom)) {
 							final World world = Bukkit.getWorld(claimFrom.getWorldUniqueId());
@@ -118,6 +120,12 @@ public class GDListener implements Listener {
 		}
 
 		return false;
+	}
+
+	private boolean hasTrust(UUID player, Claim claim) {
+		if(claim.isUserTrusted(player, TrustTypes.MANAGER)) { return true; }
+		else if(claim.isUserTrusted(player, TrustTypes.BUILDER)) { return true; }
+		else { return false; }
 	}
 
 }

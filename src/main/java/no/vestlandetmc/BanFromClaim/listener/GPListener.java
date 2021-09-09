@@ -22,6 +22,8 @@ import no.vestlandetmc.BanFromClaim.handler.ParticleHandler;
 
 public class GPListener implements Listener {
 
+	final ClaimData claimData = new ClaimData();
+
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerEnterClaim(PlayerMoveEvent e) {
 		final Location locFrom = e.getFrom();
@@ -43,9 +45,9 @@ public class GPListener implements Listener {
 			if(CombatMode.ATTACKER.containsKey(player.getUniqueId()))
 				hasAttacked = CombatMode.ATTACKER.get(player.getUniqueId()).equals(ownerUUID);
 
-			if(playerBanned(player, claim, claimID) && !hasAttacked) {
+			if((claimData.isAllBanned(claimID) || playerBanned(player, claimID)) && !hasAttacked && !hasTrust(player, claim)) {
 				if(claim.contains(locFrom, true, false)) {
-					if(playerBanned(player, claim, claimID)) {
+					if(playerBanned(player, claimID)) {
 						final World world = claim.getGreaterBoundaryCorner().getWorld();
 						final int x = claim.getGreaterBoundaryCorner().getBlockX();
 						final int z = claim.getGreaterBoundaryCorner().getBlockZ();
@@ -99,7 +101,7 @@ public class GPListener implements Listener {
 
 	}
 
-	private boolean playerBanned(Player player, Claim claim, String claimID) {
+	private boolean playerBanned(Player player, String claimID) {
 		final ClaimData claimData = new ClaimData();
 		if(claimData.checkClaim(claimID)) {
 			if(claimData.bannedPlayers(claimID) != null) {
@@ -112,5 +114,12 @@ public class GPListener implements Listener {
 		}
 
 		return false;
+	}
+
+	private boolean hasTrust(Player player, Claim claim) {
+		final String accessDenied = claim.allowGrantPermission(player);
+
+		if(accessDenied != null) { return true; }
+		else { return false; }
 	}
 }

@@ -24,7 +24,10 @@ public class Messages extends ConfigHandler {
 	LIST_HEADER,
 	LIST_EMPTY,
 	TITLE_MESSAGE,
-	SUBTITLE_MESSAGE;
+	SUBTITLE_MESSAGE,
+	BAN_ALL,
+	UNBAN_ALL,
+	LIST_BAN_ALL;
 
 	private void onLoad() {
 
@@ -46,6 +49,9 @@ public class Messages extends ConfigHandler {
 		LIST_EMPTY = getString("list-empty");
 		TITLE_MESSAGE = getString("title-message");
 		SUBTITLE_MESSAGE = getString("subtitle-message");
+		BAN_ALL = getString("ban-all");
+		UNBAN_ALL = getString("unban-all");
+		LIST_BAN_ALL = getString("list-ban-all");
 
 	}
 

@@ -11,9 +11,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import no.vestlandetmc.BanFromClaim.commands.SafeSpot;
+import no.vestlandetmc.BanFromClaim.commands.griefdefender.BfcAllCommandGD;
 import no.vestlandetmc.BanFromClaim.commands.griefdefender.BfcCommandGD;
 import no.vestlandetmc.BanFromClaim.commands.griefdefender.BfclistCommandGD;
 import no.vestlandetmc.BanFromClaim.commands.griefdefender.UnbfcCommandGD;
+import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfcAllCommand;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfcCommand;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfclistCommand;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.UnbfcCommand;
@@ -57,6 +59,7 @@ public class BfcPlugin extends JavaPlugin {
 			this.getCommand("banfromclaim").setExecutor(new BfcCommand());
 			this.getCommand("unbanfromclaim").setExecutor(new UnbfcCommand());
 			this.getCommand("banfromclaimlist").setExecutor(new BfclistCommand());
+			this.getCommand("banfromclaimall").setExecutor(new BfcAllCommand());
 
 		} else if(getServer().getPluginManager().getPlugin("GriefDefender") != null) {
 			MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &7Successfully hooked into &eGriefDefender");
@@ -66,6 +69,7 @@ public class BfcPlugin extends JavaPlugin {
 			this.getCommand("banfromclaim").setExecutor(new BfcCommandGD());
 			this.getCommand("unbanfromclaim").setExecutor(new UnbfcCommandGD());
 			this.getCommand("banfromclaimlist").setExecutor(new BfclistCommandGD());
+			this.getCommand("banfromclaimall").setExecutor(new BfcAllCommandGD());
 
 		} else {
 			MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &cNo supported claimsystem was found.");

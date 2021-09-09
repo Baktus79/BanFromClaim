@@ -39,6 +39,7 @@ public class BfclistCommandGD implements CommandExecutor {
 		final Vector3i vector = Vector3i.from(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 		final Core gd = GriefDefender.getCore();
 		final Claim claim = gd.getClaimManager(loc.getWorld().getUID()).getClaimAt(vector);
+		final ClaimData claimData = new ClaimData();
 
 		if(args.length != 0) {
 			if(isInt(args[0])) {
@@ -72,6 +73,12 @@ public class BfclistCommandGD implements CommandExecutor {
 
 		} else {
 			MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_HEADER, null, player.getDisplayName(), claim.getOwnerName()));
+
+			if(claimData.isAllBanned(claim.getUniqueId().toString())) {
+				MessageHandler.sendMessage(player, Messages.LIST_BAN_ALL);
+				return true;
+			}
+
 			if(listPlayers(claim.getUniqueId().toString()) == null) {
 				MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_EMPTY, null, player.getDisplayName(), claim.getOwnerName()));
 				return true;

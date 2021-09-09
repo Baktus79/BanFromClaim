@@ -40,6 +40,14 @@ commands:
     permission: bfc.safespot
     permission-message: §cSorry, but you do not have permissions to do that.
     usage: /<command>
+  banfromclaimall:
+    description: Ban all players from your claim
+    aliases:
+    - bfca
+    - bfcall
+    permission: bfc.banall
+    permission-message: §cSorry, but you do not have permissions to do that.
+    usage: /<command>
 permissions:
   bfc.admin:
     description: Give you access to everything
@@ -50,6 +58,7 @@ permissions:
       bfc.list: true
       bfc.bypass: true
       bfc.safespot: true
+      bfc.banall: true
   bfc.use:
     description: Give you access to user commands
     default: op
@@ -57,6 +66,7 @@ permissions:
       bfc.ban: true
       bfc.unban: true
       bfc.list: true
+      bfc.banall: true
   bfc.ban:
     description: Give you access to /bfc command
     default: op
@@ -71,5 +81,8 @@ permissions:
     default: op
   bfc.safespot:
     description: Set new safespot
+    default: op
+  bfc.banall:
+    description: Give you access to /bfca command
     default: op
     
