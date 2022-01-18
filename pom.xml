@@ -5,7 +5,7 @@
 
 	<groupId>no.vestlandetmc.bfc</groupId>
 	<artifactId>BanFromClaim</artifactId>
-	<version>1.5.11</version>
+	<version>1.6.1</version>
 	<packaging>jar</packaging>
 
 	<name>BanFromClaim</name>
@@ -13,8 +13,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
 
 	<repositories>
@@ -29,6 +29,10 @@
 		<repository>
 			<id>bungeecord-repo</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</repository>
+		<repository>
+			<id>glaremasters</id>
+			<url>https://repo.glaremasters.me/repository/bloodshot/</url>
 		</repository>
 	</repositories>
 
@@ -45,6 +49,12 @@
 			<version>16.17.1</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.griefdefender</groupId>
+			<artifactId>api</artifactId>
+			<version>2.0.0-20211109.003051-10</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
@@ -53,5 +63,37 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.2.4</version>
+				<configuration>
+					<createDependencyReducedPom>false</createDependencyReducedPom>
+					<relocations>
+						<relocation>
+							<pattern>net.kyori.event</pattern>
+							<shadedPattern>com.griefdefender.lib.kyori.event</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>net.kyori.adventure.text</pattern>
+							<shadedPattern>com.griefdefender.lib.kyori.adventure.text</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>com.flowpowered</pattern>
+							<shadedPattern>com.griefdefender.lib.flowpowered</shadedPattern>
+						</relocation>
+					</relocations>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 	</build>
 </project>
