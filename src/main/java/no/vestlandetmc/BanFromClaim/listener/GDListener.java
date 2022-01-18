@@ -3,6 +3,7 @@ package no.vestlandetmc.BanFromClaim.listener;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -11,11 +12,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+import com.flowpowered.math.vector.Vector3i;
 import com.griefdefender.api.Core;
 import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.claim.Claim;
 import com.griefdefender.api.claim.TrustTypes;
-import com.griefdefender.lib.flowpowered.math.vector.Vector3i;
 
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
@@ -43,7 +44,7 @@ public class GDListener implements Listener {
 		final ParticleHandler ph = new ParticleHandler(e.getTo());
 
 		if(locFrom.getBlockX() != locTo.getBlockX() || locFrom.getBlockZ() != locTo.getBlockZ()) {
-			if(player.hasPermission("bfc.bypass")) { return; }
+			if(player.hasPermission("bfc.bypass") || player.getGameMode().equals(GameMode.SPECTATOR)) { return; }
 
 			if(!claimTo.isWilderness()) {
 				final UUID ownerUUID = claimTo.getOwnerUniqueId();

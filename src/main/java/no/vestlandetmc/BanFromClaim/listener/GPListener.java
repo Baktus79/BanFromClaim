@@ -3,6 +3,7 @@ package no.vestlandetmc.BanFromClaim.listener;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -34,7 +35,7 @@ public class GPListener implements Listener {
 		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(locTo, true, null);
 		final ParticleHandler ph = new ParticleHandler(e.getTo());
 
-		if(player.hasPermission("bfc.bypass")) { return; }
+		if(player.hasPermission("bfc.bypass") || player.getGameMode().equals(GameMode.SPECTATOR)) { return; }
 
 		if(claim != null) {
 			final UUID ownerUUID =  claim.ownerID;
