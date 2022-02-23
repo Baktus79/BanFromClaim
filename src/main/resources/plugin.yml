@@ -2,7 +2,7 @@ name: BanFromClaim
 version: ${project.version}
 authors: [Baktus_79]
 main: no.vestlandetmc.BanFromClaim.BfcPlugin
-description: Addon for GriefPrevention that let you ban players from entering your claim
+description: Addon for GriefPrevention and GriefDefender that let you ban players from entering your claim.
 website: www.vestlandetmc.no
 prefix: BanFromClaim
 api-version: 1.13
@@ -48,6 +48,14 @@ commands:
     permission: bfc.banall
     permission-message: §cSorry, but you do not have permissions to do that.
     usage: /<command>
+  kickfromclaim:
+    description: Kick a player from your claim
+    aliases:
+    - kfc
+    - kickfc
+    permission: bfc.kick
+    permission-message: §cSorry, but you do not have permissions to do that.
+    usage: /<command> [player]
 permissions:
   bfc.admin:
     description: Give you access to everything
@@ -59,6 +67,7 @@ permissions:
       bfc.bypass: true
       bfc.safespot: true
       bfc.banall: true
+      bfc.kick: true
   bfc.use:
     description: Give you access to user commands
     default: op
@@ -67,6 +76,7 @@ permissions:
       bfc.unban: true
       bfc.list: true
       bfc.banall: true
+      bfc.kick: true
   bfc.ban:
     description: Give you access to /bfc command
     default: op
@@ -84,5 +94,8 @@ permissions:
     default: op
   bfc.banall:
     description: Give you access to /bfca command
+    default: op
+  bfc.kick:
+    description: Give you access to /kfc command
     default: op
     

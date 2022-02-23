@@ -12,11 +12,15 @@ public class Messages extends ConfigHandler {
 	NO_ARGUMENTS,
 	BAN_SELF,
 	BAN_OWNER,
+	KICK_SELF,
+	KICK_OWNER,
 	PROTECTED,
 	NO_ACCESS,
 	BANNED,
 	BANNED_TARGET,
 	ALREADY_BANNED,
+	KICKED,
+	KICKED_TARGET,
 	UNBANNED,
 	UNBANNED_TARGET,
 	NOT_BANNED,
@@ -36,10 +40,14 @@ public class Messages extends ConfigHandler {
 		NO_ARGUMENTS = getString("no-arguments");
 		BAN_SELF = getString("ban-self");
 		BAN_OWNER = getString("ban-owner");
+		KICK_SELF = getString("kick-self");
+		KICK_OWNER = getString("kick-owner");
 		PROTECTED = getString("protected");
 		NO_ACCESS = getString("no-access");
 		BANNED = getString("banned");
 		BANNED_TARGET = getString("banned-target");
+		KICKED = getString("kicked");
+		KICKED_TARGET = getString("kicked-target");
 		ALREADY_BANNED = getString("already-banned");
 		UNBANNED = getString("unbanned");
 		UNBANNED_TARGET = getString("unbanned-target");
