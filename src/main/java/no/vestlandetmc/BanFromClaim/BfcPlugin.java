@@ -14,10 +14,12 @@ import no.vestlandetmc.BanFromClaim.commands.SafeSpot;
 import no.vestlandetmc.BanFromClaim.commands.griefdefender.BfcAllCommandGD;
 import no.vestlandetmc.BanFromClaim.commands.griefdefender.BfcCommandGD;
 import no.vestlandetmc.BanFromClaim.commands.griefdefender.BfclistCommandGD;
+import no.vestlandetmc.BanFromClaim.commands.griefdefender.KfcCommandGD;
 import no.vestlandetmc.BanFromClaim.commands.griefdefender.UnbfcCommandGD;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfcAllCommand;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfcCommand;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfclistCommand;
+import no.vestlandetmc.BanFromClaim.commands.griefprevention.KfcCommandGP;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.UnbfcCommand;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Config;
@@ -32,7 +34,7 @@ import no.vestlandetmc.BanFromClaim.listener.PlayerListener;
 
 public class BfcPlugin extends JavaPlugin {
 
-	public static BfcPlugin instance;
+	private static BfcPlugin instance;
 
 	private File dataFile;
 	private FileConfiguration data;
@@ -51,6 +53,8 @@ public class BfcPlugin extends JavaPlugin {
 		MessageHandler.sendConsole("&2|___/_| \\___|");
 		MessageHandler.sendConsole("");
 
+		Config.initialize();
+
 		if(getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
 			MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &7Successfully hooked into &eGriefPrevention");
 			MessageHandler.sendConsole("");
@@ -61,6 +65,10 @@ public class BfcPlugin extends JavaPlugin {
 			this.getCommand("banfromclaimlist").setExecutor(new BfclistCommand());
 			this.getCommand("banfromclaimall").setExecutor(new BfcAllCommand());
 
+			if(Config.KICKMODE) {
+				this.getCommand("kickfromclaim").setExecutor(new KfcCommandGP());
+			}
+
 		} else if(getServer().getPluginManager().getPlugin("GriefDefender") != null) {
 			MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &7Successfully hooked into &eGriefDefender");
 			MessageHandler.sendConsole("");
@@ -70,6 +78,10 @@ public class BfcPlugin extends JavaPlugin {
 			this.getCommand("unbanfromclaim").setExecutor(new UnbfcCommandGD());
 			this.getCommand("banfromclaimlist").setExecutor(new BfclistCommandGD());
 			this.getCommand("banfromclaimall").setExecutor(new BfcAllCommandGD());
+
+			if(Config.KICKMODE) {
+				this.getCommand("kickfromclaim").setExecutor(new KfcCommandGD());
+			}
 
 		} else {
 			MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &cNo supported claimsystem was found.");
@@ -83,7 +95,6 @@ public class BfcPlugin extends JavaPlugin {
 
 		createDatafile();
 		Messages.initialize();
-		Config.initialize();
 		ClaimData.createSection();
 
 		if(Config.COMBAT_ENABLED) {

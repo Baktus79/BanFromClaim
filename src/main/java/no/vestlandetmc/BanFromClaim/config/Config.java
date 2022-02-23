@@ -15,7 +15,8 @@ public class Config extends ConfigHandler {
 
 	public static boolean
 	COMBAT_ENABLED,
-	TIMER_ENABLED;
+	TIMER_ENABLED,
+	KICKMODE;
 
 	public static Location
 	SAFE_LOCATION;
@@ -46,6 +47,7 @@ public class Config extends ConfigHandler {
 		COMBAT_TIME = getLong("combatmode.time");
 		COMBAT_ENABLED = getBoolean("combatmode.enabled");
 		TIMER_ENABLED = getBoolean("combatmode.timer-enabled");
+		KICKMODE = getBoolean("kickmode");
 
 	}
 

@@ -2,23 +2,23 @@ package no.vestlandetmc.BanFromClaim.commands.griefdefender;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.flowpowered.math.vector.Vector3i;
 import com.griefdefender.api.Core;
 import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.claim.Claim;
 import com.griefdefender.api.claim.TrustTypes;
+import com.griefdefender.lib.flowpowered.math.vector.Vector3i;
 
+import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
+import no.vestlandetmc.BanFromClaim.handler.LocationFinder;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
 public class BfcCommandGD implements CommandExecutor {
@@ -79,43 +79,43 @@ public class BfcCommandGD implements CommandExecutor {
 			return true;
 		} else {
 			final String claimOwner = claim.getOwnerName();
+			final int sizeRadius = Math.max(claim.getLength(), claim.getWidth());
+
+			final Location greaterCorner = new Location(
+					Bukkit.getWorld(claim.getWorldUniqueId()),
+					claim.getGreaterBoundaryCorner().getX(),
+					64D,
+					claim.getGreaterBoundaryCorner().getZ());
+
+			final Location lesserCorner = new Location(
+					Bukkit.getWorld(claim.getWorldUniqueId()),
+					claim.getLesserBoundaryCorner().getX(),
+					64D,
+					claim.getLesserBoundaryCorner().getZ());
 
 			if(setClaimData(player, claim.getUniqueId().toString(), bannedPlayer.getUniqueId().toString(), true)) {
 				if(bannedPlayer.isOnline()) {
 					final Location bannedLoc = bannedPlayer.getPlayer().getLocation();
 					final Vector3i bannedVec = Vector3i.from(bannedLoc.getBlockX(), bannedLoc.getBlockY(), bannedLoc.getBlockZ());
 					if(claim.contains(bannedVec)) {
-						final World world = Bukkit.getWorld(claim.getWorldUniqueId());
-						final int x = claim.getGreaterBoundaryCorner().getX();
-						final int z = claim.getGreaterBoundaryCorner().getZ();
-						final int y = world.getHighestBlockYAt(x, z);
-						Location gbLoc = new Location(world, x, y, z);
-						final String direction = getDirection(bannedLoc, gbLoc);
+						final LocationFinder lf = new LocationFinder(greaterCorner, lesserCorner, claim.getWorldUniqueId(), sizeRadius);
 
-						if(direction.equals("E") || direction.equals("NE") || direction.equals("SE")) { gbLoc = gbLoc.add(10D, 0D, 0D); }
-						else if(direction.equals("W") || direction.equals("NW")) { gbLoc = gbLoc.add(-10D, 0D, 0D); }
-						else if(direction.equals("S") || direction.equals("SW")) { gbLoc = gbLoc.add(0D, 0D, 10D); }
-						else if(direction.equals("N")) { gbLoc = gbLoc.add(0D, 0D, -10D); }
+						Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferencesGD(randomCircumferenceRadiusLoc -> {
+							if(randomCircumferenceRadiusLoc == null) {
+								if(Config.SAFE_LOCATION == null) { bannedPlayer.getPlayer().teleport(bannedLoc.getWorld().getSpawnLocation()); }
+								else { bannedPlayer.getPlayer().teleport(Config.SAFE_LOCATION); }
+							}
+							else { bannedPlayer.getPlayer().teleport(randomCircumferenceRadiusLoc);	}
 
-						final double hBlockY = world.getHighestBlockAt(gbLoc).getY();
+							MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
 
-						final Location tpLoc = new Location(world, gbLoc.getX(), hBlockY + 1, gbLoc.getZ());
-
-						if(tpLoc.getBlock().getType().equals(Material.AIR)) {
-							if(Config.SAFE_LOCATION != null) {
-								bannedPlayer.getPlayer().teleport(Config.SAFE_LOCATION);
-							} else { bannedPlayer.getPlayer().teleport(tpLoc); }
-						} else { bannedPlayer.getPlayer().teleport(tpLoc); }
+						}));
 					}
-
-					MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
 				}
 
 				MessageHandler.sendMessage(player, Messages.placeholders(Messages.BANNED, bannedPlayer.getName(), null, null));
 
-			} else {
-				MessageHandler.sendMessage(player, Messages.ALREADY_BANNED);
-			}
+			} else { MessageHandler.sendMessage(player, Messages.ALREADY_BANNED); }
 
 		}
 		return true;
@@ -125,13 +125,6 @@ public class BfcCommandGD implements CommandExecutor {
 		final ClaimData claimData = new ClaimData();
 
 		return claimData.setClaimData(player, claimID, bannedUUID, add);
-	}
-
-	private String getDirection(Location source, Location destination) {
-		final String[] CARDINAL = { "E", "NE", "N", "NW", "W", "SW", "S", "SE" };
-
-		final int direction = ((int) Math.round(Math.atan2(source.getX() - destination.getX(), source.getZ() - destination.getZ()) / (2 * Math.PI / 8)) + 8) % 8;
-		return CARDINAL[direction];
 	}
 
 }
