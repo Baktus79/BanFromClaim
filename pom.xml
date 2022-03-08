@@ -3,7 +3,7 @@
 
 	<groupId>no.vestlandetmc.bfc</groupId>
 	<artifactId>BanFromClaim</artifactId>
-	<version>1.6.0</version>
+	<version>1.6.1</version>
 	<packaging>jar</packaging>
 
 	<name>BanFromClaim</name>
@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.18.1-R0.1-SNAPSHOT</version>
+			<version>1.18.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
