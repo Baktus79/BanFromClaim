@@ -83,7 +83,7 @@ public class BfcCommand implements CommandExecutor {
 							final Location bannedLoc = bannedPlayer.getPlayer().getLocation();
 							final LocationFinder lf = new LocationFinder(greaterCorner, lesserCorner, bannedLoc.getWorld().getUID(), sizeRadius);
 
-							Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferencesGD(randomCircumferenceRadiusLoc -> {
+							Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferencesGP(randomCircumferenceRadiusLoc -> {
 								if(randomCircumferenceRadiusLoc == null) {
 									if(Config.SAFE_LOCATION == null) { bannedPlayer.getPlayer().teleport(bannedLoc.getWorld().getSpawnLocation()); }
 									else { bannedPlayer.getPlayer().teleport(Config.SAFE_LOCATION); }
