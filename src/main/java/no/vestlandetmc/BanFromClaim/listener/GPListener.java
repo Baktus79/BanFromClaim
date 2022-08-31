@@ -42,8 +42,8 @@ public class GPListener implements Listener {
 			final String claimID = claim.getID().toString();
 			boolean hasAttacked = false;
 
-			if(CombatMode.ATTACKER.containsKey(player.getUniqueId()))
-				hasAttacked = CombatMode.ATTACKER.get(player.getUniqueId()).equals(ownerUUID);
+			if(CombatMode.attackerContains(player.getUniqueId()))
+				hasAttacked = CombatMode.getAttacker(player.getUniqueId()).equals(ownerUUID);
 
 			if((claimData.isAllBanned(claimID) || playerBanned(player, claimID)) && !hasAttacked && !hasTrust(player, claim)) {
 				if(claim.contains(locFrom, true, false)) {
@@ -116,6 +116,7 @@ public class GPListener implements Listener {
 		return false;
 	}
 
+	@SuppressWarnings("deprecation")
 	private boolean hasTrust(Player player, Claim claim) {
 		final String accessDenied = claim.allowGrantPermission(player);
 		final String buildDenied = claim.allowBuild(player, Material.DIRT);

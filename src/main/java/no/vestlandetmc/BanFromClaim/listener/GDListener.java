@@ -50,8 +50,8 @@ public class GDListener implements Listener {
 				final UUID ownerUUID = claimTo.getOwnerUniqueId();
 				boolean hasAttacked = false;
 
-				if(CombatMode.ATTACKER.containsKey(player.getUniqueId()))
-					hasAttacked = CombatMode.ATTACKER.get(player.getUniqueId()).equals(ownerUUID);
+				if(CombatMode.attackerContains(player.getUniqueId()))
+					hasAttacked = CombatMode.getAttacker(player.getUniqueId()).equals(ownerUUID);
 
 				if((claimData.isAllBanned(claimTo.getUniqueId().toString()) || playerBanned(player, claimTo)) && !hasAttacked && !hasTrust(player.getUniqueId(), claimTo)) {
 					if(!claimFrom.isWilderness()) {
