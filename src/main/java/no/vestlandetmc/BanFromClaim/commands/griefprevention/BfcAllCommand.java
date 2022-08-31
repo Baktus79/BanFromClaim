@@ -14,6 +14,7 @@ import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
 public class BfcAllCommand implements CommandExecutor {
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(!(sender instanceof Player)) {

@@ -52,6 +52,7 @@ public class BfclistCommand implements CommandExecutor {
 			return true;
 		}
 
+		@SuppressWarnings("deprecation")
 		final String accessDenied = claim.allowGrantPermission(player);
 		boolean allowBan = false;
 
