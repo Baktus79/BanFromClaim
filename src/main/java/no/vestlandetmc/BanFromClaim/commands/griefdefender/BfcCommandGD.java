@@ -100,7 +100,7 @@ public class BfcCommandGD implements CommandExecutor {
 					if(claim.contains(bannedVec)) {
 						final LocationFinder lf = new LocationFinder(greaterCorner, lesserCorner, claim.getWorldUniqueId(), sizeRadius);
 
-						Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferencesGD(randomCircumferenceRadiusLoc -> {
+						Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
 							if(randomCircumferenceRadiusLoc == null) {
 								if(Config.SAFE_LOCATION == null) { bannedPlayer.getPlayer().teleport(bannedLoc.getWorld().getSpawnLocation()); }
 								else { bannedPlayer.getPlayer().teleport(Config.SAFE_LOCATION); }

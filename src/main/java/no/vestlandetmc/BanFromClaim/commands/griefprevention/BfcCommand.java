@@ -19,6 +19,7 @@ import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
 public class BfcCommand implements CommandExecutor {
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(!(sender instanceof Player)) {
@@ -40,7 +41,6 @@ public class BfcCommand implements CommandExecutor {
 			return true;
 		}
 
-		@SuppressWarnings("deprecation")
 		final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(args[0]);
 		final String accessDenied = claim.allowGrantPermission(player);
 		boolean allowBan = false;
@@ -83,7 +83,7 @@ public class BfcCommand implements CommandExecutor {
 							final Location bannedLoc = bannedPlayer.getPlayer().getLocation();
 							final LocationFinder lf = new LocationFinder(greaterCorner, lesserCorner, bannedLoc.getWorld().getUID(), sizeRadius);
 
-							Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferencesGP(randomCircumferenceRadiusLoc -> {
+							Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
 								if(randomCircumferenceRadiusLoc == null) {
 									if(Config.SAFE_LOCATION == null) { bannedPlayer.getPlayer().teleport(bannedLoc.getWorld().getSpawnLocation()); }
 									else { bannedPlayer.getPlayer().teleport(Config.SAFE_LOCATION); }

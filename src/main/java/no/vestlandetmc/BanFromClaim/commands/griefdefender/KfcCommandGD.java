@@ -93,7 +93,7 @@ public class KfcCommandGD implements CommandExecutor {
 			if(claim.contains(kickedVec)) {
 				final LocationFinder lf = new LocationFinder(greaterCorner, lesserCorner, claim.getWorldUniqueId(), sizeRadius);
 
-				Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferencesGD(randomCircumferenceRadiusLoc -> {
+				Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
 					if(randomCircumferenceRadiusLoc == null) {
 						if(Config.SAFE_LOCATION == null) { kickedPlayer.teleport(kickedLoc.getWorld().getSpawnLocation()); }
 						else { kickedPlayer.teleport(Config.SAFE_LOCATION); }
