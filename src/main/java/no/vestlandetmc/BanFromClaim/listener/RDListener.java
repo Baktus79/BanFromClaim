@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,6 +15,7 @@ import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
+import no.vestlandetmc.BanFromClaim.handler.LocationFinder;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 import no.vestlandetmc.BanFromClaim.handler.ParticleHandler;
 import no.vestlandetmc.rd.handler.Region;
@@ -48,17 +48,17 @@ public class RDListener implements Listener {
 			if((claimData.isAllBanned(claimID) || playerBanned(player, claimID)) && !hasAttacked && !hasTrust(player, rg)) {
 				if(rg.contains(locFrom)) {
 					if(playerBanned(player, claimID) || claimData.isAllBanned(claimID)) {
-						final World world = rg.getGreaterBoundary().getWorld();
-						final int x = rg.getGreaterBoundary().getBlockX();
-						final int z = rg.getGreaterBoundary().getBlockZ();
-						final int y = world.getHighestBlockAt(x, z).getY();
-						final Location tpLoc = new Location(world, x, y, z).add(0D, 1D, 0D);
+						final int sizeRadius = (int) Math.max(rg.getLength(), rg.getWidth());
 
-						if(tpLoc.getBlock().getType().equals(Material.AIR)) {
-							if(Config.SAFE_LOCATION != null) {
-								player.teleport(Config.SAFE_LOCATION);
-							} else { player.teleport(tpLoc.add(0D, 1D, 0D)); }
-						} else { player.teleport(tpLoc.add(0D, 1D, 0D)); }
+						final LocationFinder lf = new LocationFinder(rg.getGreaterBoundary(), rg.getLesserBoundary(), rg.getWorld().getUID(), sizeRadius);
+						Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
+							if(randomCircumferenceRadiusLoc == null) {
+								if(Config.SAFE_LOCATION == null) { player.teleport(player.getWorld().getSpawnLocation()); }
+								else { player.teleport(Config.SAFE_LOCATION); }
+							}
+							else { player.teleport(randomCircumferenceRadiusLoc);	}
+
+						}));
 
 					} else {
 						final Location tpLoc = player.getLocation().add(e.getFrom().toVector().subtract(e.getTo().toVector()).normalize().multiply(3));

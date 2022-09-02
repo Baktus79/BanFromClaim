@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,6 +21,7 @@ import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
+import no.vestlandetmc.BanFromClaim.handler.LocationFinder;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 import no.vestlandetmc.BanFromClaim.handler.ParticleHandler;
 
@@ -56,17 +56,29 @@ public class GDListener implements Listener {
 				if((claimData.isAllBanned(claimTo.getUniqueId().toString()) || playerBanned(player, claimTo)) && !hasAttacked && !hasTrust(player.getUniqueId(), claimTo)) {
 					if(!claimFrom.isWilderness()) {
 						if(playerBanned(player, claimFrom)) {
-							final World world = Bukkit.getWorld(claimFrom.getWorldUniqueId());
-							final int x = claimFrom.getGreaterBoundaryCorner().getX();
-							final int z = claimFrom.getGreaterBoundaryCorner().getZ();
-							final int y = world.getHighestBlockAt(x, z).getY();
-							final Location tpLoc = new Location(world, x, y, z).add(0D, 1D, 0D);
+							final int sizeRadius = Math.max(claimTo.getLength(), claimTo.getWidth());
 
-							if(tpLoc.getBlock().getType().equals(Material.AIR)) {
-								if(Config.SAFE_LOCATION != null) {
-									player.teleport(Config.SAFE_LOCATION);
-								} else { player.teleport(tpLoc.add(0D, 1D, 0D)); }
-							} else { player.teleport(tpLoc.add(0D, 1D, 0D)); }
+							final Location greaterCorner = new Location(
+									Bukkit.getWorld(claimTo.getWorldUniqueId()),
+									claimTo.getGreaterBoundaryCorner().getX(),
+									64D,
+									claimTo.getGreaterBoundaryCorner().getZ());
+
+							final Location lesserCorner = new Location(
+									Bukkit.getWorld(claimTo.getWorldUniqueId()),
+									claimTo.getLesserBoundaryCorner().getX(),
+									64D,
+									claimTo.getLesserBoundaryCorner().getZ());
+
+							final LocationFinder lf = new LocationFinder(greaterCorner, lesserCorner, player.getWorld().getUID(), sizeRadius);
+							Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
+								if(randomCircumferenceRadiusLoc == null) {
+									if(Config.SAFE_LOCATION == null) { player.teleport(player.getWorld().getSpawnLocation()); }
+									else { player.teleport(Config.SAFE_LOCATION); }
+								}
+								else { player.teleport(randomCircumferenceRadiusLoc);	}
+
+							}));
 
 						} else {
 							final Location tpLoc = player.getLocation().add(e.getFrom().toVector().subtract(e.getTo().toVector()).normalize().multiply(3));
