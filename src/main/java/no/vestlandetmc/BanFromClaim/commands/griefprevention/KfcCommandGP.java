@@ -17,6 +17,7 @@ import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 
 public class KfcCommandGP implements CommandExecutor {
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(!(sender instanceof Player)) {
@@ -76,7 +77,7 @@ public class KfcCommandGP implements CommandExecutor {
 					final Location bannedLoc = kickedPlayer.getLocation();
 					final LocationFinder lf = new LocationFinder(greaterCorner, lesserCorner, bannedLoc.getWorld().getUID(), sizeRadius);
 
-					Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferencesGP(randomCircumferenceRadiusLoc -> {
+					Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
 						if(randomCircumferenceRadiusLoc == null) {
 							if(Config.SAFE_LOCATION == null) { kickedPlayer.teleport(bannedLoc.getWorld().getSpawnLocation()); }
 							else { kickedPlayer.teleport(Config.SAFE_LOCATION); }

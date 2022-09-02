@@ -1,4 +1,4 @@
-package no.vestlandetmc.BanFromClaim.commands.griefdefender;
+package no.vestlandetmc.BanFromClaim.commands.regiondefence;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -8,20 +8,16 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.griefdefender.api.Core;
-import com.griefdefender.api.GriefDefender;
-import com.griefdefender.api.claim.Claim;
-import com.griefdefender.api.claim.TrustTypes;
-import com.griefdefender.lib.flowpowered.math.vector.Vector3i;
-
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.LocationFinder;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
+import no.vestlandetmc.rd.handler.Region;
+import no.vestlandetmc.rd.handler.RegionManager;
 
-public class BfcCommandGD implements CommandExecutor {
+public class BfcCommandRD implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -32,16 +28,14 @@ public class BfcCommandGD implements CommandExecutor {
 
 		final Player player = (Player) sender;
 		final Location loc = player.getLocation();
-		final Vector3i vector = Vector3i.from(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-		final Core gd = GriefDefender.getCore();
-		final Claim claim = gd.getClaimManager(loc.getWorld().getUID()).getClaimAt(vector);
+		final Region rg = RegionManager.getRegion(loc);
 
 		if(args.length == 0) {
 			MessageHandler.sendMessage(player, Messages.NO_ARGUMENTS);
 			return true;
 		}
 
-		if(claim.isWilderness()) {
+		if(rg == null) {
 			MessageHandler.sendMessage(player, Messages.OUTSIDE_CLAIM);
 			return true;
 		}
@@ -49,8 +43,8 @@ public class BfcCommandGD implements CommandExecutor {
 
 		@SuppressWarnings("deprecation")
 		final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(args[0]);
-		final boolean isManager = claim.getUserTrusts(TrustTypes.MANAGER).contains(player.getUniqueId());
-		final boolean isOwner = claim.getOwnerUniqueId().equals(player.getUniqueId());
+		final boolean isManager = rg.hasManagerTrust(player.getUniqueId());
+		final boolean isOwner = rg.isOwner(player.getUniqueId());
 		boolean allowBan = false;
 
 		if(isOwner || isManager) { allowBan = true; }
@@ -62,7 +56,7 @@ public class BfcCommandGD implements CommandExecutor {
 		} else if(bannedPlayer == player) {
 			MessageHandler.sendMessage(player, Messages.BAN_SELF);
 			return true;
-		} else if(bannedPlayer.getName().equals(claim.getOwnerName())) {
+		} else if(bannedPlayer.getName().equals(Bukkit.getOfflinePlayer(rg.getOwnerUUID()).getName())) {
 			MessageHandler.sendMessage(player, Messages.BAN_OWNER);
 			return true;
 		}
@@ -78,27 +72,14 @@ public class BfcCommandGD implements CommandExecutor {
 			MessageHandler.sendMessage(player, Messages.NO_ACCESS);
 			return true;
 		} else {
-			final String claimOwner = claim.getOwnerName();
-			final int sizeRadius = Math.max(claim.getLength(), claim.getWidth());
+			final String claimOwner = Bukkit.getOfflinePlayer(rg.getOwnerUUID()).getName();
+			final long sizeRadius = Math.max(rg.getLength(), rg.getWidth());
 
-			final Location greaterCorner = new Location(
-					Bukkit.getWorld(claim.getWorldUniqueId()),
-					claim.getGreaterBoundaryCorner().getX(),
-					64D,
-					claim.getGreaterBoundaryCorner().getZ());
-
-			final Location lesserCorner = new Location(
-					Bukkit.getWorld(claim.getWorldUniqueId()),
-					claim.getLesserBoundaryCorner().getX(),
-					64D,
-					claim.getLesserBoundaryCorner().getZ());
-
-			if(setClaimData(player, claim.getUniqueId().toString(), bannedPlayer.getUniqueId().toString(), true)) {
+			if(setClaimData(player, rg.getRegionID().toString(), bannedPlayer.getUniqueId().toString(), true)) {
 				if(bannedPlayer.isOnline()) {
 					final Location bannedLoc = bannedPlayer.getPlayer().getLocation();
-					final Vector3i bannedVec = Vector3i.from(bannedLoc.getBlockX(), bannedLoc.getBlockY(), bannedLoc.getBlockZ());
-					if(claim.contains(bannedVec)) {
-						final LocationFinder lf = new LocationFinder(greaterCorner, lesserCorner, claim.getWorldUniqueId(), sizeRadius);
+					if(rg.contains(bannedLoc)) {
+						final LocationFinder lf = new LocationFinder(rg.getGreaterBoundary(), rg.getLesserBoundary(), rg.getWorld().getUID(), (int) sizeRadius);
 
 						Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
 							if(randomCircumferenceRadiusLoc == null) {

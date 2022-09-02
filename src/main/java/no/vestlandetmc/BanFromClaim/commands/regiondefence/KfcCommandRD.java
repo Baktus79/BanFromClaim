@@ -1,25 +1,22 @@
-package no.vestlandetmc.BanFromClaim.commands.griefdefender;
+package no.vestlandetmc.BanFromClaim.commands.regiondefence;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import com.griefdefender.api.Core;
-import com.griefdefender.api.GriefDefender;
-import com.griefdefender.api.claim.Claim;
-import com.griefdefender.api.claim.TrustTypes;
-import com.griefdefender.lib.flowpowered.math.vector.Vector3i;
 
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.LocationFinder;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
+import no.vestlandetmc.rd.handler.Region;
+import no.vestlandetmc.rd.handler.RegionManager;
 
-public class KfcCommandGD implements CommandExecutor {
+public class KfcCommandRD implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -30,23 +27,22 @@ public class KfcCommandGD implements CommandExecutor {
 
 		final Player player = (Player) sender;
 		final Location loc = player.getLocation();
-		final Vector3i vector = Vector3i.from(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-		final Core gd = GriefDefender.getCore();
-		final Claim claim = gd.getClaimManager(loc.getWorld().getUID()).getClaimAt(vector);
+		final Region rg = RegionManager.getRegion(loc);
 
 		if(args.length == 0) {
 			MessageHandler.sendMessage(player, Messages.NO_ARGUMENTS);
 			return true;
 		}
 
-		if(claim.isWilderness()) {
+		if(rg == null) {
 			MessageHandler.sendMessage(player, Messages.OUTSIDE_CLAIM);
 			return true;
 		}
 
 		final Player kickedPlayer = Bukkit.getPlayer(args[0]);
-		final boolean isManager = claim.getUserTrusts(TrustTypes.MANAGER).contains(player.getUniqueId());
-		final boolean isOwner = claim.getOwnerUniqueId().equals(player.getUniqueId());
+		final boolean isManager = rg.hasManagerTrust(player.getUniqueId());
+		final boolean isOwner = rg.isOwner(player.getUniqueId());
+		final OfflinePlayer owner = Bukkit.getOfflinePlayer(rg.getOwnerUUID());
 		boolean allowKick = false;
 
 		if(isOwner || isManager) { allowKick = true; }
@@ -58,7 +54,7 @@ public class KfcCommandGD implements CommandExecutor {
 		} else if(kickedPlayer == player) {
 			MessageHandler.sendMessage(player, Messages.KICK_SELF);
 			return true;
-		} else if(kickedPlayer.getName().equals(claim.getOwnerName())) {
+		} else if(kickedPlayer.getName().equals(owner.getName())) {
 			MessageHandler.sendMessage(player, Messages.KICK_OWNER);
 			return true;
 		}
@@ -72,26 +68,24 @@ public class KfcCommandGD implements CommandExecutor {
 			MessageHandler.sendMessage(player, Messages.NO_ACCESS);
 			return true;
 		} else {
-			final int sizeRadius = Math.max(claim.getLength(), claim.getWidth());
+			final int sizeRadius = (int) Math.max(rg.getLength(), rg.getWidth());
 
 			final Location greaterCorner = new Location(
-					Bukkit.getWorld(claim.getWorldUniqueId()),
-					claim.getGreaterBoundaryCorner().getX(),
+					rg.getWorld(),
+					rg.getGreaterBoundary().getX(),
 					64D,
-					claim.getGreaterBoundaryCorner().getZ());
+					rg.getGreaterBoundary().getZ());
 
 			final Location lesserCorner = new Location(
-					Bukkit.getWorld(claim.getWorldUniqueId()),
-					claim.getLesserBoundaryCorner().getX(),
+					rg.getWorld(),
+					rg.getLesserBoundary().getX(),
 					64D,
-					claim.getLesserBoundaryCorner().getZ());
+					rg.getLesserBoundary().getZ());
 
-			final String claimOwner = claim.getOwnerName();
 			final Location kickedLoc = kickedPlayer.getLocation();
-			final Vector3i kickedVec = Vector3i.from(kickedLoc.getBlockX(), kickedLoc.getBlockY(), kickedLoc.getBlockZ());
 
-			if(claim.contains(kickedVec)) {
-				final LocationFinder lf = new LocationFinder(greaterCorner, lesserCorner, claim.getWorldUniqueId(), sizeRadius);
+			if(rg.contains(kickedLoc)) {
+				final LocationFinder lf = new LocationFinder(greaterCorner, lesserCorner, rg.getWorld().getUID(), sizeRadius);
 
 				Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
 					if(randomCircumferenceRadiusLoc == null) {
@@ -100,7 +94,7 @@ public class KfcCommandGD implements CommandExecutor {
 					}
 					else { kickedPlayer.teleport(randomCircumferenceRadiusLoc);	}
 
-					MessageHandler.sendMessage(kickedPlayer, Messages.placeholders(Messages.KICKED_TARGET, kickedPlayer.getName(), player.getDisplayName(), claimOwner));
+					MessageHandler.sendMessage(kickedPlayer, Messages.placeholders(Messages.KICKED_TARGET, kickedPlayer.getName(), player.getDisplayName(), owner.getName()));
 
 				}));
 			}

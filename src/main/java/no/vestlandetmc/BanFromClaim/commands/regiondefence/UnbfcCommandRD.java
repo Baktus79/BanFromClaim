@@ -1,4 +1,4 @@
-package no.vestlandetmc.BanFromClaim.commands.griefprevention;
+package no.vestlandetmc.BanFromClaim.commands.regiondefence;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,15 +11,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import me.ryanhamshire.GriefPrevention.Claim;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
+import no.vestlandetmc.rd.handler.Region;
+import no.vestlandetmc.rd.handler.RegionManager;
 
-public class UnbfcCommand implements CommandExecutor {
+public class UnbfcCommandRD implements CommandExecutor {
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(!(sender instanceof Player)) {
@@ -29,23 +28,25 @@ public class UnbfcCommand implements CommandExecutor {
 
 		final Player player = (Player) sender;
 		final Location loc = player.getLocation();
-		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(loc, true, null);
+		final Region rg = RegionManager.getRegion(loc);
 
 		if(args.length == 0) {
 			MessageHandler.sendMessage(player, Messages.NO_ARGUMENTS);
 			return true;
 		}
 
-		if(claim == null) {
+		if(rg == null) {
 			MessageHandler.sendMessage(player, Messages.OUTSIDE_CLAIM);
 			return true;
 		}
 
-		final String accessDenied = claim.allowGrantPermission(player);
+		final boolean isManager = rg.hasManagerTrust(player.getUniqueId());
+		final boolean isOwner = rg.isOwner(player.getUniqueId());
+		final OfflinePlayer owner = Bukkit.getOfflinePlayer(rg.getOwnerUUID());
 		boolean allowBan = false;
 
-		if(accessDenied == null) { allowBan = true; }
-		if(player.hasPermission("bfc.admin")) { allowBan = true; }
+		if(isOwner || isManager) { allowBan = true; }
+		else if(player.hasPermission("bfc.admin")) { allowBan = true; }
 
 		OfflinePlayer bPlayer = null;
 
@@ -54,11 +55,11 @@ public class UnbfcCommand implements CommandExecutor {
 			return true;
 
 		} else {
-			final String claimOwner = claim.getOwnerName();
-			final String claimID = claim.getID().toString();
+			final String claimOwner = owner.getName();
+			final String claimID = rg.getRegionID().toString();
 
-			if(listPlayers(claim.getID().toString()) != null) {
-				for(final String bp : listPlayers(claim.getID().toString())) {
+			if(listPlayers(claimID) != null) {
+				for(final String bp : listPlayers(claimID)) {
 					final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(UUID.fromString(bp));
 					if(bannedPlayer.getName().equalsIgnoreCase(args[0])) {
 						bPlayer = bannedPlayer;

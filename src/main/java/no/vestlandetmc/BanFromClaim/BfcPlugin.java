@@ -21,16 +21,22 @@ import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfcCommand;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfclistCommand;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.KfcCommandGP;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.UnbfcCommand;
+import no.vestlandetmc.BanFromClaim.commands.regiondefence.BfcAllCommandRD;
+import no.vestlandetmc.BanFromClaim.commands.regiondefence.BfcCommandRD;
+import no.vestlandetmc.BanFromClaim.commands.regiondefence.BfclistCommandRD;
+import no.vestlandetmc.BanFromClaim.commands.regiondefence.UnbfcCommandRD;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.CombatScheduler;
+import no.vestlandetmc.BanFromClaim.handler.Hooks;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 import no.vestlandetmc.BanFromClaim.handler.UpdateNotification;
 import no.vestlandetmc.BanFromClaim.listener.CombatMode;
 import no.vestlandetmc.BanFromClaim.listener.GDListener;
 import no.vestlandetmc.BanFromClaim.listener.GPListener;
 import no.vestlandetmc.BanFromClaim.listener.PlayerListener;
+import no.vestlandetmc.BanFromClaim.listener.RDListener;
 
 public class BfcPlugin extends JavaPlugin {
 
@@ -59,6 +65,8 @@ public class BfcPlugin extends JavaPlugin {
 			MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &7Successfully hooked into &eGriefPrevention");
 			MessageHandler.sendConsole("");
 
+			Hooks.setGP();
+
 			this.getServer().getPluginManager().registerEvents(new GPListener(), this);
 			this.getCommand("banfromclaim").setExecutor(new BfcCommand());
 			this.getCommand("unbanfromclaim").setExecutor(new UnbfcCommand());
@@ -73,11 +81,29 @@ public class BfcPlugin extends JavaPlugin {
 			MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &7Successfully hooked into &eGriefDefender");
 			MessageHandler.sendConsole("");
 
+			Hooks.setGD();
+
 			this.getServer().getPluginManager().registerEvents(new GDListener(), this);
 			this.getCommand("banfromclaim").setExecutor(new BfcCommandGD());
 			this.getCommand("unbanfromclaim").setExecutor(new UnbfcCommandGD());
 			this.getCommand("banfromclaimlist").setExecutor(new BfclistCommandGD());
 			this.getCommand("banfromclaimall").setExecutor(new BfcAllCommandGD());
+
+			if(Config.KICKMODE) {
+				this.getCommand("kickfromclaim").setExecutor(new KfcCommandGD());
+			}
+
+		} else if(getServer().getPluginManager().getPlugin("RegionDefence") != null) {
+			MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &7Successfully hooked into &eRegionDefence");
+			MessageHandler.sendConsole("");
+
+			Hooks.setRD();
+
+			this.getServer().getPluginManager().registerEvents(new RDListener(), this);
+			this.getCommand("banfromclaim").setExecutor(new BfcCommandRD());
+			this.getCommand("unbanfromclaim").setExecutor(new UnbfcCommandRD());
+			this.getCommand("banfromclaimlist").setExecutor(new BfclistCommandRD());
+			this.getCommand("banfromclaimall").setExecutor(new BfcAllCommandRD());
 
 			if(Config.KICKMODE) {
 				this.getCommand("kickfromclaim").setExecutor(new KfcCommandGD());
