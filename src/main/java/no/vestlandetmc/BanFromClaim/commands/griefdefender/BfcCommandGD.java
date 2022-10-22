@@ -56,18 +56,18 @@ public class BfcCommandGD implements CommandExecutor {
 		if(isOwner || isManager) { allowBan = true; }
 		else if(player.hasPermission("bfc.admin")) { allowBan = true; }
 
-		if(!bannedPlayer.hasPlayedBefore()) {
-			MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], player.getDisplayName(), null));
-			return true;
-		} else if(bannedPlayer == player) {
-			MessageHandler.sendMessage(player, Messages.BAN_SELF);
-			return true;
-		} else if(bannedPlayer.getName().equals(claim.getOwnerName())) {
-			MessageHandler.sendMessage(player, Messages.BAN_OWNER);
-			return true;
-		}
-
-		if(bannedPlayer.isOnline()) {
+		if(!bannedPlayer.isOnline()) {
+			if(!bannedPlayer.hasPlayedBefore()) {
+				MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], player.getDisplayName(), null));
+				return true;
+			} else if(bannedPlayer == player) {
+				MessageHandler.sendMessage(player, Messages.BAN_SELF);
+				return true;
+			} else if(bannedPlayer.getName().equals(claim.getOwnerName())) {
+				MessageHandler.sendMessage(player, Messages.BAN_OWNER);
+				return true;
+			}
+		} else {
 			if(bannedPlayer.getPlayer().hasPermission("bfc.bypass")) {
 				MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, bannedPlayer.getPlayer().getDisplayName(), null, null));
 				return true;
