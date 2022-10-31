@@ -15,13 +15,13 @@ public class CombatScheduler extends BukkitRunnable {
 	@Override
 	public void run() {
 		if(CombatMode.isEmpty()) { return; }
-
 		for(final Entry<UUID, Long> combat : CombatMode.getAllTime().entrySet()) {
+			final UUID uuid = combat.getKey();
+			final UUID attackerUUID = CombatMode.getAttacker(uuid);
+			if(attackerUUID == null) { continue; }
 
-			if(CombatMode.getAttacker(combat.getKey()) == null) { continue; }
-
-			final OfflinePlayer victim = Bukkit.getOfflinePlayer(combat.getKey());
-			final OfflinePlayer attacker = Bukkit.getOfflinePlayer(CombatMode.getAttacker(combat.getKey()));
+			final OfflinePlayer victim = Bukkit.getOfflinePlayer(uuid);
+			final OfflinePlayer attacker = Bukkit.getOfflinePlayer(attackerUUID);
 			final long time = combat.getValue();
 			final long newTime = System.currentTimeMillis() / 1000;
 			final long combatTime = newTime - time;
