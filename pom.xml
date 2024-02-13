@@ -53,6 +53,12 @@
 			<version>2.1.0-20220608.043832-6</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.github.Gecolay.GSit</groupId>
+			<artifactId>core</artifactId>
+			<version>LATEST</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>

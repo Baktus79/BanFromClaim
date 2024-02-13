@@ -13,8 +13,6 @@ import com.griefdefender.api.GriefDefender;
 import me.ryanhamshire.GriefPrevention.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
-import no.vestlandetmc.rd.handler.RegionManager;
-
 public class LocationFinder {
 
 	private final Location circumferenceCenter;
@@ -93,11 +91,6 @@ public class LocationFinder {
 			final Core griefDefenderCore = GriefDefender.getCore();
 			return !griefDefenderCore.getClaimAt(loc).isWilderness();
 		}
-
-		else if(Hooks.rdEnabled()) {
-			return RegionManager.getRegion(loc) != null;
-		}
-
 		else {
 			return false;
 		}

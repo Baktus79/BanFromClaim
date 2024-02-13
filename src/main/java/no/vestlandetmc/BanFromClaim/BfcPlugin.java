@@ -21,10 +21,10 @@ import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfcCommand;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.BfclistCommand;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.KfcCommandGP;
 import no.vestlandetmc.BanFromClaim.commands.griefprevention.UnbfcCommand;
-import no.vestlandetmc.BanFromClaim.commands.regiondefence.BfcAllCommandRD;
-import no.vestlandetmc.BanFromClaim.commands.regiondefence.BfcCommandRD;
-import no.vestlandetmc.BanFromClaim.commands.regiondefence.BfclistCommandRD;
-import no.vestlandetmc.BanFromClaim.commands.regiondefence.UnbfcCommandRD;
+//import no.vestlandetmc.BanFromClaim.commands.regiondefence.BfcAllCommandRD;
+//import no.vestlandetmc.BanFromClaim.commands.regiondefence.BfcCommandRD;
+//import no.vestlandetmc.BanFromClaim.commands.regiondefence.BfclistCommandRD;
+//import no.vestlandetmc.BanFromClaim.commands.regiondefence.UnbfcCommandRD;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
@@ -36,7 +36,7 @@ import no.vestlandetmc.BanFromClaim.listener.CombatMode;
 import no.vestlandetmc.BanFromClaim.listener.GDListener;
 import no.vestlandetmc.BanFromClaim.listener.GPListener;
 import no.vestlandetmc.BanFromClaim.listener.PlayerListener;
-import no.vestlandetmc.BanFromClaim.listener.RDListener;
+//import no.vestlandetmc.BanFromClaim.listener.RDListener;
 
 public class BfcPlugin extends JavaPlugin {
 
@@ -99,11 +99,11 @@ public class BfcPlugin extends JavaPlugin {
 
 			Hooks.setRD();
 
-			this.getServer().getPluginManager().registerEvents(new RDListener(), this);
-			this.getCommand("banfromclaim").setExecutor(new BfcCommandRD());
-			this.getCommand("unbanfromclaim").setExecutor(new UnbfcCommandRD());
-			this.getCommand("banfromclaimlist").setExecutor(new BfclistCommandRD());
-			this.getCommand("banfromclaimall").setExecutor(new BfcAllCommandRD());
+//			this.getServer().getPluginManager().registerEvents(new RDListener(), this);
+//			this.getCommand("banfromclaim").setExecutor(new BfcCommandRD());
+//			this.getCommand("unbanfromclaim").setExecutor(new UnbfcCommandRD());
+//			this.getCommand("banfromclaimlist").setExecutor(new BfclistCommandRD());
+//			this.getCommand("banfromclaimall").setExecutor(new BfcAllCommandRD());
 
 			if(Config.KICKMODE) {
 				this.getCommand("kickfromclaim").setExecutor(new KfcCommandGD());

@@ -1,11 +1,16 @@
 package no.vestlandetmc.BanFromClaim.listener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import dev.geco.gsit.api.GSitAPI;
+import dev.geco.gsit.objects.GetUpReason;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,8 +26,15 @@ import no.vestlandetmc.BanFromClaim.handler.LocationFinder;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 import no.vestlandetmc.BanFromClaim.handler.ParticleHandler;
 
-public class GPListener implements Listener {
+import static org.bukkit.Bukkit.getServer;
 
+public class GPListener implements Listener {
+	// check for depend
+	private boolean found_GSit = false;
+	public GPListener (){
+		found_GSit = (getServer().getPluginManager().getPlugin("GSit") != null);
+	}
+	// ===============
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerEnterClaim(PlayerMoveEvent e) {
 		final ClaimData claimData = new ClaimData();
@@ -46,6 +58,22 @@ public class GPListener implements Listener {
 				hasAttacked = CombatMode.getAttacker(player.getUniqueId()).equals(ownerUUID);
 
 			if((claimData.isAllBanned(claimID) || playerBanned(player, claimID)) && !hasAttacked && !hasTrust(player, claim)) {
+				// if GSit plugin is found, then enable the fix for https://github.com/Baktus79/BanFromClaim/issues/35
+				if (found_GSit) {
+					// check if the player,s top has any player
+					for (Player p : getTopPlayers(player)) {
+						// check if any player is sitting on the player get banned (for g-sit is AREA_EFFECT_CLOUD)
+						if (p.getVehicle() == null) {
+							// maby player just fly on the same location?
+							continue;
+						}
+						if (p.getVehicle().getType().equals(EntityType.AREA_EFFECT_CLOUD)) {
+							// unsit the players, so the plugin can normaly ban and teleport player out of the claim
+							GSitAPI.stopPlayerSit(p, GetUpReason.PLUGIN);
+						}
+					}
+				}
+
 				if(claim.contains(locFrom, true, false)) {
 					if(playerBanned(player, claimID) || claimData.isAllBanned(claimID)) {
 						final int sizeRadius = Math.max(claim.getHeight(), claim.getWidth());
@@ -53,7 +81,9 @@ public class GPListener implements Listener {
 						final LocationFinder lf = new LocationFinder(claim.getGreaterBoundaryCorner(), claim.getLesserBoundaryCorner(), player.getWorld().getUID(), sizeRadius);
 						Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
 							if(randomCircumferenceRadiusLoc == null) {
-								if(Config.SAFE_LOCATION == null) { player.teleport(player.getWorld().getSpawnLocation()); }
+								if(Config.SAFE_LOCATION == null) {
+									player.teleport(player.getWorld().getSpawnLocation());
+								}
 								else { player.teleport(Config.SAFE_LOCATION); }
 							}
 							else { player.teleport(randomCircumferenceRadiusLoc);	}
@@ -114,6 +144,20 @@ public class GPListener implements Listener {
 		}
 
 		return false;
+	}
+	// get the player that have the same X,Z (Maybe sitting on the target)
+	private List<Player> getTopPlayers(Player target) {
+		int x = target.getLocation().getBlockX();
+		int z = target.getLocation().getBlockZ();
+		int y = target.getLocation().getBlockY();
+		List<Player> nearbyPlayers = new ArrayList<>();
+		for (Player onlinePlayer : getServer().getOnlinePlayers()) {
+			Location playerLOC = onlinePlayer.getLocation();
+			if (playerLOC.getBlockX() == x && playerLOC.getBlockZ() == z && playerLOC.getBlockY() > y) {
+				nearbyPlayers.add(onlinePlayer);
+			}
+		}
+		return nearbyPlayers;
 	}
 
 	@SuppressWarnings("deprecation")
