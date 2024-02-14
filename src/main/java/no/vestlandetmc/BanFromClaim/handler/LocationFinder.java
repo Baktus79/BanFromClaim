@@ -1,19 +1,16 @@
 package no.vestlandetmc.BanFromClaim.handler;
 
-import java.util.UUID;
-
+import com.griefdefender.api.Core;
+import com.griefdefender.api.GriefDefender;
+import me.ryanhamshire.GriefPrevention.DataStore;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
-import com.griefdefender.api.Core;
-import com.griefdefender.api.GriefDefender;
-
-import me.ryanhamshire.GriefPrevention.DataStore;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import no.vestlandetmc.BanFromClaim.BfcPlugin;
-import no.vestlandetmc.rd.handler.RegionManager;
+import java.util.UUID;
 
 public class LocationFinder {
 
@@ -27,7 +24,9 @@ public class LocationFinder {
 		this.circumferenceRadius = circumferenceRadius;
 	}
 
-	/**[Run asynchronously] Callback returns "safe" location outside a claim if found, if not found returns null (Uses expanding iterating circumferences method)*/
+	/**
+	 * [Run asynchronously] Callback returns "safe" location outside a claim if found, if not found returns null (Uses expanding iterating circumferences method)
+	 */
 	public void IterateCircumferences(CallbackReturnLocation callback) {
 		final World circumferenceWorld = Bukkit.getWorld(this.circumferenceWorldUUID);
 		final BfcPlugin plugin = BfcPlugin.getInstance();
@@ -38,40 +37,43 @@ public class LocationFinder {
 		final int maxSafeLocationFailures = 5;
 		int safeLocationChecks = 0;
 
-		outer: for(int i = 0; i < maxCircleIterations; i++) { //Circle radius iteration
+		outer:
+		for (int i = 0; i < maxCircleIterations; i++) { //Circle radius iteration
 			circumferenceRadius *= 2;
 
-			for(int j = 0; j < checkLocationsPerCircumference; j++) { //Circumference position + check within claim
+			for (int j = 0; j < checkLocationsPerCircumference; j++) { //Circumference position + check within claim
 				randomCircumferenceRadiusLoc = GetRandomCircumferenceLoc(this.circumferenceCenter, circumferenceRadius, circumferenceWorld);
-				if(!hasClaim(randomCircumferenceRadiusLoc)) {
+				if (!hasClaim(randomCircumferenceRadiusLoc)) {
 					safeLocationChecks++;
 
 					final Block highestBlock = circumferenceWorld.getHighestBlockAt(randomCircumferenceRadiusLoc);
 
-					if(SafeLocationCheck.BlockSafetyCheck(highestBlock)) {
+					if (SafeLocationCheck.BlockSafetyCheck(highestBlock)) {
 						randomCircumferenceRadiusLoc = new Location(circumferenceWorld, highestBlock.getX() + 0.5, highestBlock.getY() + 1, highestBlock.getZ() + 0.5);
 						break outer;
-					}
-
-					else if(!(safeLocationChecks >= maxSafeLocationFailures)) j = 0; //Reset circumference position search unless it's the last safe check
+					} else if (!(safeLocationChecks >= maxSafeLocationFailures))
+						j = 0; //Reset circumference position search unless it's the last safe check
 				}
 			}
 
-			if(i == maxCircleIterations - 1) randomCircumferenceRadiusLoc = null; //Last iteration and no appropriate position found
+			if (i == maxCircleIterations - 1)
+				randomCircumferenceRadiusLoc = null; //Last iteration and no appropriate position found
 		}
 
 		final Location finalRandomCircumferenceRadiusLoc = randomCircumferenceRadiusLoc;
-		Bukkit.getScheduler().runTask(plugin, (Runnable) () -> callback.onDone(finalRandomCircumferenceRadiusLoc));
+		Bukkit.getScheduler().runTask(plugin, () -> callback.onDone(finalRandomCircumferenceRadiusLoc));
 	}
 
-	/**Returns a random Location from a circumference of circumferenceRadius and circunferenceCenter*/
+	/**
+	 * Returns a random Location from a circumference of circumferenceRadius and circunferenceCenter
+	 */
 	private Location GetRandomCircumferenceLoc(Location circumferenceCenter, int circumferenceRadius, World circumferenceWorld) {
-		final double randomAngle = Math.random()*Math.PI*2;
+		final double randomAngle = Math.random() * Math.PI * 2;
 		return new Location(circumferenceWorld,
 				circumferenceCenter.getX() + Math.cos(randomAngle) * circumferenceRadius,
 				120,
 				circumferenceCenter.getZ() + Math.sin(randomAngle) * circumferenceRadius
-				);
+		);
 	}
 
 	private Location findCenter(Location loc1, Location loc2) {
@@ -84,21 +86,13 @@ public class LocationFinder {
 	}
 
 	private boolean hasClaim(Location loc) {
-		if(Hooks.gpEnabled()) {
+		if (Hooks.gpEnabled()) {
 			final DataStore griefPreventionCore = GriefPrevention.instance.dataStore;
 			return griefPreventionCore.getClaimAt(loc, true, null) != null;
-		}
-
-		else if(Hooks.gdEnabled()) {
+		} else if (Hooks.gdEnabled()) {
 			final Core griefDefenderCore = GriefDefender.getCore();
 			return !griefDefenderCore.getClaimAt(loc).isWilderness();
-		}
-
-		else if(Hooks.rdEnabled()) {
-			return RegionManager.getRegion(loc) != null;
-		}
-
-		else {
+		} else {
 			return false;
 		}
 	}

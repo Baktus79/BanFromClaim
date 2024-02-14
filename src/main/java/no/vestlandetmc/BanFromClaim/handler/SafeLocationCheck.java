@@ -18,7 +18,8 @@ public class SafeLocationCheck {
 		if (isSolid(feet)) return false; //Solid feet (may suffocate)
 		final Block head = feet.getRelative(BlockFace.UP);
 		if (isSolid(head)) return false; //Solid head (may suffocate)
-		if (!isSolid(block.getRelative(BlockFace.DOWN))) return false; //Base block is floating or maybe even tree branch
+		if (!isSolid(block.getRelative(BlockFace.DOWN)))
+			return false; //Base block is floating or maybe even tree branch
 
 		//Final check, inside world border? + return
 		final WorldBorder worldBorder = block.getWorld().getWorldBorder();
@@ -26,8 +27,7 @@ public class SafeLocationCheck {
 	}
 
 	private static boolean isSolid(Block block) {
-		if(block.isLiquid()) return false;
-		else if(block.isEmpty()) return false;
-		else return true;
+		if (block.isLiquid()) return false;
+		else return !block.isEmpty();
 	}
 }

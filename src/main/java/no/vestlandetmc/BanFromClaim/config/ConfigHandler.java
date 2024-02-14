@@ -1,5 +1,10 @@
 package no.vestlandetmc.BanFromClaim.config;
 
+import no.vestlandetmc.BanFromClaim.BfcPlugin;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,15 +16,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import no.vestlandetmc.BanFromClaim.BfcPlugin;
-
 public class ConfigHandler extends YamlConfiguration {
 
 	private final File file;
-	private YamlConfiguration defaults;
+	private final YamlConfiguration defaults;
 	private String pathPrefix;
 
 	public ConfigHandler(String fileName) {
@@ -27,7 +27,7 @@ public class ConfigHandler extends YamlConfiguration {
 	}
 
 	public ConfigHandler(String fileName, boolean useDefaults) {
-		if(useDefaults) {
+		if (useDefaults) {
 			this.defaults = YamlConfiguration.loadConfiguration(new InputStreamReader(ConfigHandler.class.getResourceAsStream("/" + fileName), StandardCharsets.UTF_8));
 		} else {
 			this.defaults = null;
@@ -61,7 +61,7 @@ public class ConfigHandler extends YamlConfiguration {
 		} catch (final IOException ex) {
 			System.out.println("Failed to save configuration from " + file);
 
-			ex.printStackTrace();
+			Bukkit.getLogger().severe(ex.getMessage());
 		}
 	}
 
@@ -73,7 +73,7 @@ public class ConfigHandler extends YamlConfiguration {
 		} catch (final Throwable t) {
 			System.out.println("Failed to load configuration from " + file);
 
-			t.printStackTrace();
+			Bukkit.getLogger().severe(t.getMessage());
 		}
 	}
 
@@ -122,7 +122,7 @@ public class ConfigHandler extends YamlConfiguration {
 				Files.copy(is, Paths.get(file.toURI()), StandardCopyOption.REPLACE_EXISTING);
 
 			} catch (final IOException e) {
-				e.printStackTrace();
+				Bukkit.getLogger().severe(e.getMessage());
 			}
 
 		return file;
@@ -132,7 +132,7 @@ public class ConfigHandler extends YamlConfiguration {
 
 		final File datafolder = BfcPlugin.getInstance().getDataFolder();
 		final int lastIndex = path.lastIndexOf('/');
-		final File directory = new File(datafolder, path.substring(0, lastIndex >= 0 ? lastIndex : 0));
+		final File directory = new File(datafolder, path.substring(0, Math.max(lastIndex, 0)));
 
 		directory.mkdirs();
 
@@ -144,7 +144,7 @@ public class ConfigHandler extends YamlConfiguration {
 		} catch (final IOException ex) {
 			System.out.println("Failed to create file " + path);
 
-			ex.printStackTrace();
+			Bukkit.getLogger().severe(ex.getMessage());
 		}
 
 		return destination;
