@@ -1,29 +1,33 @@
 package no.vestlandetmc.BanFromClaim.listener;
 
-import java.util.HashMap;
-import java.util.UUID;
-
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
+import java.util.HashMap;
+import java.util.UUID;
+
 public class CombatMode implements Listener {
 
-	private static HashMap<UUID, Long> TIME = new HashMap<>();
-	private static HashMap<UUID, UUID> ATTACKER = new HashMap<>();
+	private static final HashMap<UUID, Long> TIME = new HashMap<>();
+	private static final HashMap<UUID, UUID> ATTACKER = new HashMap<>();
 
 	@EventHandler
 	public void playerHit(EntityDamageByEntityEvent e) {
-		if(!(e.getEntity() instanceof Player)) { return; }
-		if(!(e.getDamager() instanceof Player)) { return; }
+		if (!(e.getEntity() instanceof Player)) {
+			return;
+		}
+		if (!(e.getDamager() instanceof Player)) {
+			return;
+		}
 
 		final Player victim = (Player) e.getEntity();
 		final Player attacker = (Player) e.getDamager();
 		final long time = System.currentTimeMillis() / 1000;
 
-		if(TIME.containsKey(attacker.getUniqueId())) {
-			if(ATTACKER.get(attacker.getUniqueId()).equals(victim.getUniqueId()))
+		if (TIME.containsKey(attacker.getUniqueId())) {
+			if (ATTACKER.get(attacker.getUniqueId()).equals(victim.getUniqueId()))
 				return;
 		}
 
@@ -33,13 +37,15 @@ public class CombatMode implements Listener {
 	}
 
 	public static UUID getAttacker(UUID uuid) {
-		if(ATTACKER.containsKey(uuid)) { return ATTACKER.get(uuid); }
-		else { return null; }
+		return ATTACKER.getOrDefault(uuid, null);
 	}
 
 	public static long getTime(UUID uuid) {
-		if(TIME.containsKey(uuid)) { return TIME.get(uuid); }
-		else { return 0; }
+		if (TIME.containsKey(uuid)) {
+			return TIME.get(uuid);
+		} else {
+			return 0;
+		}
 	}
 
 	public static void registerTime(UUID uuid, long time) {
@@ -63,14 +69,12 @@ public class CombatMode implements Listener {
 	}
 
 	public static boolean isEmpty() {
-		if(TIME.isEmpty() || ATTACKER.isEmpty()) {
+		if (TIME.isEmpty() || ATTACKER.isEmpty()) {
 			TIME.clear();
 			ATTACKER.clear();
 
 			return true;
-		}
-
-		else {
+		} else {
 			return false;
 		}
 

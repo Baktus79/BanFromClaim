@@ -14,9 +14,9 @@ public class ParticleHandler {
 	}
 
 	public void drawCircle(float radius, boolean isX) {
-		if(isX) {
-			for(float r = 0; r <= radius; r += 0.2) {
-				for(double t = 0; t < 50; t += 0.2) {
+		if (isX) {
+			for (float r = 0; r <= radius; r += 0.2F) {
+				for (double t = 0; t < 50; t += 0.2) {
 					final float x = r * (float) Math.sin(t);
 					final float y = r * (float) Math.cos(t);
 
@@ -26,10 +26,9 @@ public class ParticleHandler {
 					loc.getWorld().spawnParticle(redstone, loc.getX() + x, loc.getY() + 1D + y, loc.getZ(), 1, dust);
 				}
 			}
-		}
-		else {
-			for(float r = 0; r <= radius; r += 0.2) {
-				for(double t = 0; t < 50; t += 0.2) {
+		} else {
+			for (float r = 0; r <= radius; r += 0.2F) {
+				for (double t = 0; t < 50; t += 0.2) {
 					final float z = r * (float) Math.sin(t);
 					final float y = r * (float) Math.cos(t);
 

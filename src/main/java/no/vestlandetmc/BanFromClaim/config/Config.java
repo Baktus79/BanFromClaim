@@ -11,15 +11,15 @@ public class Config extends ConfigHandler {
 	}
 
 	public static long
-	COMBAT_TIME;
+			COMBAT_TIME;
 
 	public static boolean
-	COMBAT_ENABLED,
-	TIMER_ENABLED,
-	KICKMODE;
+			COMBAT_ENABLED,
+			TIMER_ENABLED,
+			KICKMODE;
 
 	public static Location
-	SAFE_LOCATION;
+			SAFE_LOCATION;
 
 	private void onLoad() {
 
@@ -30,7 +30,7 @@ public class Config extends ConfigHandler {
 		String worldName;
 		World world;
 
-		if(contains("teleport.safelocation")) {
+		if (contains("teleport.safelocation")) {
 			locX = getDouble("teleport.safelocation.x");
 			locY = getDouble("teleport.safelocation.y");
 			locZ = getDouble("teleport.safelocation.z");

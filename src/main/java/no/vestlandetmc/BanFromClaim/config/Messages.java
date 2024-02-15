@@ -7,31 +7,31 @@ public class Messages extends ConfigHandler {
 	}
 
 	public static String
-	UNVALID_PLAYERNAME,
-	OUTSIDE_CLAIM,
-	NO_ARGUMENTS,
-	BAN_SELF,
-	BAN_OWNER,
-	KICK_SELF,
-	KICK_OWNER,
-	PROTECTED,
-	NO_ACCESS,
-	BANNED,
-	BANNED_TARGET,
-	ALREADY_BANNED,
-	KICKED,
-	KICKED_TARGET,
-	UNBANNED,
-	UNBANNED_TARGET,
-	NOT_BANNED,
-	UNVALID_NUMBER,
-	LIST_HEADER,
-	LIST_EMPTY,
-	TITLE_MESSAGE,
-	SUBTITLE_MESSAGE,
-	BAN_ALL,
-	UNBAN_ALL,
-	LIST_BAN_ALL;
+			UNVALID_PLAYERNAME,
+			OUTSIDE_CLAIM,
+			NO_ARGUMENTS,
+			BAN_SELF,
+			BAN_OWNER,
+			KICK_SELF,
+			KICK_OWNER,
+			PROTECTED,
+			NO_ACCESS,
+			BANNED,
+			BANNED_TARGET,
+			ALREADY_BANNED,
+			KICKED,
+			KICKED_TARGET,
+			UNBANNED,
+			UNBANNED_TARGET,
+			NOT_BANNED,
+			UNVALID_NUMBER,
+			LIST_HEADER,
+			LIST_EMPTY,
+			TITLE_MESSAGE,
+			SUBTITLE_MESSAGE,
+			BAN_ALL,
+			UNBAN_ALL,
+			LIST_BAN_ALL;
 
 	private void onLoad() {
 
@@ -68,12 +68,10 @@ public class Messages extends ConfigHandler {
 	}
 
 	public static String placeholders(String message, String target, String source, String claimowner) {
-		final String converted = message.
+		return message.
 				replaceAll("%target%", target).
 				replaceAll("%source%", source).
 				replaceAll("%claimowner%", claimowner);
-
-		return converted;
 
 	}
 
