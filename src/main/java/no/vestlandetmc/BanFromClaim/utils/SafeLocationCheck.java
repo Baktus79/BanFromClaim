@@ -1,4 +1,4 @@
-package no.vestlandetmc.BanFromClaim.handler;
+package no.vestlandetmc.BanFromClaim.utils;
 
 import org.bukkit.WorldBorder;
 import org.bukkit.block.Block;

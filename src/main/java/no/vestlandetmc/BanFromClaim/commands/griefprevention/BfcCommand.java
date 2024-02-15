@@ -6,8 +6,8 @@ import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
-import no.vestlandetmc.BanFromClaim.handler.LocationFinder;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
+import no.vestlandetmc.BanFromClaim.utils.LocationFinder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -21,12 +21,11 @@ public class BfcCommand implements CommandExecutor {
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!(sender instanceof Player)) {
+		if (!(sender instanceof Player player)) {
 			MessageHandler.sendConsole("&cThis command can only be used in-game.");
 			return true;
 		}
 
-		final Player player = (Player) sender;
 		final Location loc = player.getLocation();
 		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(loc, true, null);
 

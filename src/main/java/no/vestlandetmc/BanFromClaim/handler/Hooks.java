@@ -4,6 +4,7 @@ public class Hooks {
 
 	private static boolean griefPrevention = false;
 	private static boolean griefDefender = false;
+	private static final boolean gsit = false;
 
 	public static boolean gpEnabled() {
 		return griefPrevention;

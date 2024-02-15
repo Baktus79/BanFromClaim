@@ -1,10 +1,12 @@
-package no.vestlandetmc.BanFromClaim.handler;
+package no.vestlandetmc.BanFromClaim.utils;
 
 import com.griefdefender.api.Core;
 import com.griefdefender.api.GriefDefender;
 import me.ryanhamshire.GriefPrevention.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
+import no.vestlandetmc.BanFromClaim.handler.CallbackReturnLocation;
+import no.vestlandetmc.BanFromClaim.handler.Hooks;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;

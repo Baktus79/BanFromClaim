@@ -1,4 +1,4 @@
-package no.vestlandetmc.BanFromClaim.handler;
+package no.vestlandetmc.BanFromClaim.utils;
 
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import org.bukkit.scheduler.BukkitRunnable;

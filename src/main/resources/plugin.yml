@@ -1,58 +1,58 @@
 name: BanFromClaim
 version: ${project.version}
-authors: [Baktus_79]
+authors: [ Baktus_79 ]
 main: no.vestlandetmc.BanFromClaim.BfcPlugin
 description: Addon for GriefPrevention and GriefDefender that let you ban players from entering your claim.
 website: www.vestlandetmc.no
 prefix: BanFromClaim
 api-version: 1.13
-softdepend: [GriefPrevention, GriefDefender]
+softdepend: [ GriefPrevention, GriefDefender, GSit ]
 commands:
   banfromclaim:
     description: Ban a player from your claim
     aliases:
-    - bfc
-    - banfc
+      - bfc
+      - banfc
     permission: bfc.ban
     permission-message: §cSorry, but you do not have permissions to do that.
     usage: /<command> [player]
   unbanfromclaim:
     description: Ban a player from your claim
     aliases:
-    - ubfc
-    - unbanfc
+      - ubfc
+      - unbanfc
     permission: bfc.unban
     permission-message: §cSorry, but you do not have permissions to do that.
     usage: /<command> [player]
   banfromclaimlist:
     description: Displays a list of banned players in your claim
     aliases:
-    - bfcl
-    - bfclist
+      - bfcl
+      - bfclist
     permission: bfc.list
     permission-message: §cSorry, but you do not have permissions to do that.
     usage: /<command>
   bfcsafespot:
     description: Set new safespot
     aliases:
-    - bfcs
-    - bfcsetsafe
+      - bfcs
+      - bfcsetsafe
     permission: bfc.safespot
     permission-message: §cSorry, but you do not have permissions to do that.
     usage: /<command>
   banfromclaimall:
     description: Ban all players from your claim
     aliases:
-    - bfca
-    - bfcall
+      - bfca
+      - bfcall
     permission: bfc.banall
     permission-message: §cSorry, but you do not have permissions to do that.
     usage: /<command>
   kickfromclaim:
     description: Kick a player from your claim
     aliases:
-    - kfc
-    - kickfc
+      - kfc
+      - kickfc
     permission: bfc.kick
     permission-message: §cSorry, but you do not have permissions to do that.
     usage: /<command> [player]
