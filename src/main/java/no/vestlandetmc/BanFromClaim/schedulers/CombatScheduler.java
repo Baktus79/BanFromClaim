@@ -1,6 +1,7 @@
-package no.vestlandetmc.BanFromClaim.handler;
+package no.vestlandetmc.BanFromClaim.schedulers;
 
 import no.vestlandetmc.BanFromClaim.config.Config;
+import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 import no.vestlandetmc.BanFromClaim.listener.CombatMode;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
