@@ -9,9 +9,10 @@ import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
-import no.vestlandetmc.BanFromClaim.handler.LocationFinder;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
 import no.vestlandetmc.BanFromClaim.handler.ParticleHandler;
+import no.vestlandetmc.BanFromClaim.utils.LocationFinder;
+import no.vestlandetmc.BanFromClaim.utils.PlayerRidePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -44,16 +45,21 @@ public class GDListener implements Listener {
 		final ParticleHandler ph = new ParticleHandler(e.getTo());
 
 		if (locFrom.getBlockX() != locTo.getBlockX() || locFrom.getBlockZ() != locTo.getBlockZ()) {
-			if (player.hasPermission("bfc.bypass") || player.getGameMode().equals(GameMode.SPECTATOR)) {
-				return;
-			}
-
 			if (!claimTo.isWilderness()) {
 				final UUID ownerUUID = claimTo.getOwnerUniqueId();
+				final Player target = PlayerRidePlayer.getPassenger(player);
 				boolean hasAttacked = false;
+
+				if (target != null && (claimData.isAllBanned(claimTo.getUniqueId().toString()) || playerBanned(target, claimTo) || playerBanned(player, claimTo))) {
+					target.teleport(player.getLocation().add(0, 4, 0));
+				}
 
 				if (CombatMode.attackerContains(player.getUniqueId()))
 					hasAttacked = CombatMode.getAttacker(player.getUniqueId()).equals(ownerUUID);
+
+				if (player.hasPermission("bfc.bypass") || player.getGameMode().equals(GameMode.SPECTATOR)) {
+					return;
+				}
 
 				if ((claimData.isAllBanned(claimTo.getUniqueId().toString()) || playerBanned(player, claimTo)) && !hasAttacked && !hasTrust(player.getUniqueId(), claimTo)) {
 					if (!claimFrom.isWilderness()) {
