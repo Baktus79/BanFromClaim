@@ -20,7 +20,7 @@ public class ParticleHandler {
 					final float x = r * (float) Math.sin(t);
 					final float y = r * (float) Math.cos(t);
 
-					final Particle redstone = Particle.REDSTONE;
+					final Particle redstone = Particle.DUST;
 					final DustOptions dust = new DustOptions(Color.fromRGB(100, 0, 0), 0.5F);
 
 					loc.getWorld().spawnParticle(redstone, loc.getX() + x, loc.getY() + 1D + y, loc.getZ(), 1, dust);
@@ -32,7 +32,7 @@ public class ParticleHandler {
 					final float z = r * (float) Math.sin(t);
 					final float y = r * (float) Math.cos(t);
 
-					final Particle redstone = Particle.REDSTONE;
+					final Particle redstone = Particle.DUST;
 					final DustOptions dust = new DustOptions(Color.fromRGB(100, 0, 0), 0.5F);
 
 					loc.getWorld().spawnParticle(redstone, loc.getX(), loc.getY() + 1D + y, loc.getZ() + z, 1, dust);

@@ -1,20 +1,18 @@
 package no.vestlandetmc.BanFromClaim;
 
-import no.vestlandetmc.BanFromClaim.commands.SafeSpot;
-import no.vestlandetmc.BanFromClaim.commands.griefdefender.*;
-import no.vestlandetmc.BanFromClaim.commands.griefprevention.*;
+import lombok.Getter;
+import no.vestlandetmc.BanFromClaim.commands.*;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Config;
 import no.vestlandetmc.BanFromClaim.config.Messages;
-import no.vestlandetmc.BanFromClaim.handler.Hooks;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
+import no.vestlandetmc.BanFromClaim.hooks.HookManager;
 import no.vestlandetmc.BanFromClaim.listener.CombatMode;
-import no.vestlandetmc.BanFromClaim.listener.GDListener;
-import no.vestlandetmc.BanFromClaim.listener.GPListener;
 import no.vestlandetmc.BanFromClaim.listener.PlayerListener;
+import no.vestlandetmc.BanFromClaim.listener.RegionListener;
 import no.vestlandetmc.BanFromClaim.schedulers.CombatScheduler;
 import no.vestlandetmc.BanFromClaim.utils.UpdateNotification;
-import org.bukkit.Bukkit;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -26,18 +24,16 @@ import java.io.IOException;
 
 public class BfcPlugin extends JavaPlugin {
 
-	private static BfcPlugin instance;
+	@Getter
+	private static BfcPlugin plugin;
+	@Getter
+	private static HookManager hookManager;
 
-	private File dataFile;
 	private FileConfiguration data;
-
-	public static BfcPlugin getInstance() {
-		return instance;
-	}
 
 	@Override
 	public void onEnable() {
-		instance = this;
+		plugin = this;
 
 		MessageHandler.sendConsole("&2 ___ ___ ___");
 		MessageHandler.sendConsole("&2| _ ) __/ __|        &8" + getDescription().getName() + " v" + getDescription().getVersion());
@@ -46,44 +42,16 @@ public class BfcPlugin extends JavaPlugin {
 		MessageHandler.sendConsole("");
 
 		Config.initialize();
+		hookManager = new HookManager();
 
-		if (getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
-			MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &7Successfully hooked into &eGriefPrevention");
-			MessageHandler.sendConsole("");
+		this.getServer().getPluginManager().registerEvents(new RegionListener(), this);
+		this.getCommand("banfromclaim").setExecutor(new BfcCommand());
+		this.getCommand("unbanfromclaim").setExecutor(new UnbfcCommand());
+		this.getCommand("banfromclaimlist").setExecutor(new BfclistCommand());
+		this.getCommand("banfromclaimall").setExecutor(new BfcAllCommand());
 
-			Hooks.setGP();
-
-			this.getServer().getPluginManager().registerEvents(new GPListener(), this);
-			this.getCommand("banfromclaim").setExecutor(new BfcCommand());
-			this.getCommand("unbanfromclaim").setExecutor(new UnbfcCommand());
-			this.getCommand("banfromclaimlist").setExecutor(new BfclistCommand());
-			this.getCommand("banfromclaimall").setExecutor(new BfcAllCommand());
-
-			if (Config.KICKMODE) {
-				this.getCommand("kickfromclaim").setExecutor(new KfcCommandGP());
-			}
-
-		} else if (getServer().getPluginManager().getPlugin("GriefDefender") != null) {
-			MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &7Successfully hooked into &eGriefDefender");
-			MessageHandler.sendConsole("");
-
-			Hooks.setGD();
-
-			this.getServer().getPluginManager().registerEvents(new GDListener(), this);
-			this.getCommand("banfromclaim").setExecutor(new BfcCommandGD());
-			this.getCommand("unbanfromclaim").setExecutor(new UnbfcCommandGD());
-			this.getCommand("banfromclaimlist").setExecutor(new BfclistCommandGD());
-			this.getCommand("banfromclaimall").setExecutor(new BfcAllCommandGD());
-
-			if (Config.KICKMODE) {
-				this.getCommand("kickfromclaim").setExecutor(new KfcCommandGD());
-			}
-
-		} else {
-			MessageHandler.sendConsole("&2[" + getDescription().getPrefix() + "] &cNo supported claimsystem was found.");
-			MessageHandler.sendConsole("");
-			Bukkit.getPluginManager().disablePlugin(this);
-			return;
+		if (Config.KICKMODE) {
+			this.getCommand("kickfromclaim").setExecutor(new KfcCommand());
 		}
 
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
@@ -116,6 +84,10 @@ public class BfcPlugin extends JavaPlugin {
 				MessageHandler.sendConsole("&c-----------------------");
 			}
 		}.runTaskAsynchronously(this);
+
+		final int pluginId = 22441;
+		final Metrics metrics = new Metrics(this, pluginId);
+
 	}
 
 	public FileConfiguration getDataFile() {
@@ -123,7 +95,7 @@ public class BfcPlugin extends JavaPlugin {
 	}
 
 	public void createDatafile() {
-		dataFile = new File(this.getDataFolder(), "data.dat");
+		final File dataFile = new File(this.getDataFolder(), "data.dat");
 		if (!dataFile.exists()) {
 			dataFile.getParentFile().mkdirs();
 			try {

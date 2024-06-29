@@ -1,11 +1,10 @@
-package no.vestlandetmc.BanFromClaim.commands.griefprevention;
+package no.vestlandetmc.BanFromClaim.commands;
 
-import me.ryanhamshire.GriefPrevention.Claim;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
-import org.bukkit.Location;
+import no.vestlandetmc.BanFromClaim.hooks.RegionHook;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,37 +12,28 @@ import org.bukkit.entity.Player;
 
 public class BfcAllCommand implements CommandExecutor {
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!(sender instanceof Player)) {
+		if (!(sender instanceof Player player)) {
 			MessageHandler.sendConsole("&cThis command can only be used in-game.");
 			return true;
 		}
 
-		final Player player = (Player) sender;
-		final Location loc = player.getLocation();
-		final Claim claim = GriefPrevention.instance.dataStore.getClaimAt(loc, true, null);
 		final ClaimData claimData = new ClaimData();
+		final RegionHook region = BfcPlugin.getHookManager().getActiveRegionHook();
+		final String regionID = region.getRegionID(player);
 
-		if (claim == null) {
+		if (regionID == null) {
 			MessageHandler.sendMessage(player, Messages.OUTSIDE_CLAIM);
 			return true;
 		}
 
-		final String accessDenied = claim.allowGrantPermission(player);
-		boolean allowBan = false;
-
-		if (accessDenied == null) {
-			allowBan = true;
-		} else if (player.hasPermission("bfc.admin")) {
-			allowBan = true;
-		}
+		final boolean allowBan = player.hasPermission("bfc.admin") || region.isOwner(player, regionID) || region.isManager(player, regionID);
 
 		if (allowBan) {
-			claimData.banAll(claim.getID().toString());
+			claimData.banAll(regionID);
 
-			if (claimData.isAllBanned(claim.getID().toString())) {
+			if (claimData.isAllBanned(regionID)) {
 				MessageHandler.sendMessage(player, Messages.BAN_ALL);
 			} else {
 				MessageHandler.sendMessage(player, Messages.UNBAN_ALL);

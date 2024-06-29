@@ -79,7 +79,7 @@ public class GDListener implements Listener {
 									claimTo.getLesserBoundaryCorner().getZ());
 
 							final LocationFinder lf = new LocationFinder(greaterCorner, lesserCorner, player.getWorld().getUID(), sizeRadius);
-							Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getInstance(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
+							Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getPlugin(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
 								if (randomCircumferenceRadiusLoc == null) {
 									if (Config.SAFE_LOCATION == null) {
 										player.teleport(player.getWorld().getSpawnLocation());
@@ -120,7 +120,7 @@ public class GDListener implements Listener {
 						MessageHandler.sendTitle(player, Messages.TITLE_MESSAGE, Messages.SUBTITLE_MESSAGE);
 						MessageHandler.spamMessageClaim.add(player.getUniqueId().toString());
 
-						Bukkit.getScheduler().runTaskLater(BfcPlugin.getInstance(), () -> MessageHandler.spamMessageClaim.remove(player.getUniqueId().toString()), 5L * 20L);
+						Bukkit.getScheduler().runTaskLater(BfcPlugin.getPlugin(), () -> MessageHandler.spamMessageClaim.remove(player.getUniqueId().toString()), 5L * 20L);
 					}
 				}
 			}

@@ -1,15 +1,11 @@
-package no.vestlandetmc.BanFromClaim.commands.griefdefender;
+package no.vestlandetmc.BanFromClaim.commands;
 
-import com.griefdefender.api.Core;
-import com.griefdefender.api.GriefDefender;
-import com.griefdefender.api.claim.Claim;
-import com.griefdefender.api.claim.TrustTypes;
-import com.griefdefender.lib.flowpowered.math.vector.Vector3i;
+import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
+import no.vestlandetmc.BanFromClaim.hooks.RegionHook;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,40 +15,29 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.UUID;
 
-public class UnbfcCommandGD implements CommandExecutor {
+public class UnbfcCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!(sender instanceof Player)) {
+		if (!(sender instanceof Player player)) {
 			MessageHandler.sendConsole("&cThis command can only be used in-game.");
 			return true;
 		}
 
-		final Player player = (Player) sender;
-		final Location loc = player.getLocation();
-		final Vector3i vector = Vector3i.from(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-		final Core gd = GriefDefender.getCore();
-		final Claim claim = gd.getClaimManager(loc.getWorld().getUID()).getClaimAt(vector);
+		final RegionHook region = BfcPlugin.getHookManager().getActiveRegionHook();
+		final String regionID = region.getRegionID(player);
 
 		if (args.length == 0) {
 			MessageHandler.sendMessage(player, Messages.NO_ARGUMENTS);
 			return true;
 		}
 
-		if (claim.isWilderness()) {
+		if (regionID == null) {
 			MessageHandler.sendMessage(player, Messages.OUTSIDE_CLAIM);
 			return true;
 		}
 
-		final boolean isManager = claim.getUserTrusts(TrustTypes.MANAGER).contains(player.getUniqueId());
-		final boolean isOwner = claim.getOwnerUniqueId().equals(player.getUniqueId());
-		boolean allowBan = false;
-
-		if (isOwner || isManager) {
-			allowBan = true;
-		} else if (player.hasPermission("bfc.admin")) {
-			allowBan = true;
-		}
+		final boolean allowBan = player.hasPermission("bfc.admin") || region.isOwner(player, regionID) || region.isManager(player, regionID);
 
 		OfflinePlayer bPlayer = null;
 
@@ -61,15 +46,14 @@ public class UnbfcCommandGD implements CommandExecutor {
 			return true;
 
 		} else {
-			final String claimOwner = claim.getOwnerName();
-			final String claimID = claim.getUniqueId().toString();
+			final String claimOwner = region.getClaimOwnerName(regionID);
 
-			if (listPlayers(claimID) != null) {
-				for (final String bp : listPlayers(claimID)) {
+			if (listPlayers(regionID) != null) {
+				for (final String bp : listPlayers(regionID)) {
 					final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(UUID.fromString(bp));
 					if (bannedPlayer.getName().equalsIgnoreCase(args[0])) {
 						bPlayer = bannedPlayer;
-						if (setClaimData(player, claimID, bp, false)) {
+						if (setClaimData(regionID, bp, false)) {
 							MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNBANNED, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
 							if (bannedPlayer.isOnline()) {
 								MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.UNBANNED_TARGET, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
@@ -94,10 +78,10 @@ public class UnbfcCommandGD implements CommandExecutor {
 		return claimData.bannedPlayers(claimID);
 	}
 
-	private boolean setClaimData(Player player, String claimID, String bannedUUID, boolean add) {
+	private boolean setClaimData(String claimID, String bannedUUID, boolean add) {
 		final ClaimData claimData = new ClaimData();
 
-		return claimData.setClaimData(player, claimID, bannedUUID, add);
+		return claimData.setClaimData(claimID, bannedUUID, add);
 	}
 
 }

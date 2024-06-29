@@ -1,10 +1,11 @@
 plugins {
     id 'java'
     id 'io.freefair.lombok' version '8.4'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'no.vestlandetmc'
-version = '1.6.6'
+version = '1.7.0'
 
 repositories {
     mavenCentral()
@@ -14,16 +15,25 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT'
-    implementation 'com.github.GriefPrevention:GriefPrevention:16.18.4'
-    implementation 'com.griefdefender:api:2.1.0-SNAPSHOT'
+    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly 'org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT'
+    compileOnly 'com.github.GriefPrevention:GriefPrevention:16.18.4'
+    compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
+    implementation 'org.bstats:bstats-bukkit:3.0.2'
 }
 
-jar {
+shadowJar {
+    relocate 'org.bstats', 'no.vestlandetmc.BanFromClaim.bstats'
     archiveFileName.set('Banfromclaim.jar')
 }
 
-def targetJavaVersion = 21
+jar.dependsOn shadowJar
+
+jar {
+    enabled = false
+}
+
+def targetJavaVersion = 17
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion

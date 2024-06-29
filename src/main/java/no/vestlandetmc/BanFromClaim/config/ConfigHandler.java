@@ -109,7 +109,7 @@ public class ConfigHandler extends YamlConfiguration {
 	}
 
 	private File extract(String path) {
-		final JavaPlugin i = BfcPlugin.getInstance();
+		final JavaPlugin i = BfcPlugin.getPlugin();
 		final File file = new File(i.getDataFolder(), path);
 
 		if (file.exists())
@@ -130,7 +130,7 @@ public class ConfigHandler extends YamlConfiguration {
 
 	private File createFileAndDirectory(String path) {
 
-		final File datafolder = BfcPlugin.getInstance().getDataFolder();
+		final File datafolder = BfcPlugin.getPlugin().getDataFolder();
 		final int lastIndex = path.lastIndexOf('/');
 		final File directory = new File(datafolder, path.substring(0, Math.max(lastIndex, 0)));
 
