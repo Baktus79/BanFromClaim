@@ -11,12 +11,10 @@ public class SafeSpot implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!(sender instanceof Player)) {
+		if (!(sender instanceof Player player)) {
 			MessageHandler.sendConsole("&cYou cannot use this command from the console.");
 			return true;
 		}
-
-		final Player player = (Player) sender;
 
 		Config.setSafespot(player.getLocation());
 

@@ -14,7 +14,7 @@ public class MessageHandler {
 	public static ArrayList<String> spamMessageClaim = new ArrayList<>();
 
 	public static void sendAction(Player player, String message) {
-		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(colorize(message)));
+		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(colorize(message)));
 	}
 
 	public static void sendTitle(Player player, String title, String subtitle) {
@@ -41,7 +41,7 @@ public class MessageHandler {
 
 	public static void sendConsole(String... messages) {
 		for (final String message : messages) {
-			BfcPlugin.getInstance().getServer().getConsoleSender().sendMessage(colorize(message));
+			BfcPlugin.getPlugin().getServer().getConsoleSender().sendMessage(colorize(message));
 		}
 	}
 

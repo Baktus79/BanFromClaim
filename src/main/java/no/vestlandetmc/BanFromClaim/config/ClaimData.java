@@ -1,32 +1,25 @@
 package no.vestlandetmc.BanFromClaim.config;
 
-import com.griefdefender.api.Core;
-import com.griefdefender.api.GriefDefender;
-import com.griefdefender.api.claim.Claim;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
-import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
+import no.vestlandetmc.BanFromClaim.hooks.RegionHook;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class ClaimData {
 
-	private static File file;
-	private final FileConfiguration cfg = BfcPlugin.getInstance().getDataFile();
+	private final FileConfiguration cfg = BfcPlugin.getPlugin().getDataFile();
 	private final String prefix = "bfc_claim_data";
 
 	public ClaimData() {
 
 	}
 
-	public boolean setClaimData(Player player, String claimID, String bannedUUID, boolean add) {
+	public boolean setClaimData(String claimID, String bannedUUID, boolean add) {
 		if (add) {
 			if (!existData(claimID, bannedUUID)) {
 				addData(claimID, bannedUUID);
@@ -40,6 +33,32 @@ public class ClaimData {
 				return true;
 			} else {
 				return false;
+			}
+		}
+	}
+
+	public void changeRegionID(String oldID, String newID) {
+		if (cfg.contains(prefix + "." + oldID)) {
+			if (cfg.getStringList(prefix + "." + oldID).isEmpty()) {
+				cfg.set(prefix + "." + oldID, null);
+			} else {
+				final List<String> uuid = bannedPlayers(oldID);
+				boolean banAll = false;
+
+				if (cfg.contains("claims-ban-all" + "." + oldID + ".ban-all")) {
+					banAll = cfg.getBoolean("claims-ban-all" + "." + oldID + ".ban-all");
+				}
+
+				cfg.createSection(prefix + "." + newID);
+				cfg.set("claims-ban-all" + "." + newID + ".ban-all", banAll);
+
+				if (uuid != null && !uuid.isEmpty()) {
+					cfg.set(prefix + "." + newID, uuid);
+				}
+
+				cfg.set("claims-ban-all" + "." + oldID, null);
+				cfg.set(prefix + "." + oldID, null);
+				saveDatafile();
 			}
 		}
 	}
@@ -83,7 +102,6 @@ public class ClaimData {
 	}
 
 	private void removeData(String claimID, String bannedUUID) {
-
 		if (!cfg.getStringList(prefix + "." + claimID).isEmpty()) {
 			final List<String> uuid = new ArrayList<>(cfg.getStringList(prefix + "." + claimID));
 			if (uuid.contains(bannedUUID)) {
@@ -99,7 +117,6 @@ public class ClaimData {
 	}
 
 	private boolean existData(String claimID, String bannedUUID) {
-
 		if (cfg.contains(prefix + "." + claimID)) {
 			if (cfg.getStringList(prefix + "." + claimID).isEmpty()) {
 				return false;
@@ -129,64 +146,42 @@ public class ClaimData {
 
 	private static void saveDatafile() {
 		try {
-			file = new File(BfcPlugin.getInstance().getDataFolder(), "data.dat");
-			BfcPlugin.getInstance().getDataFile().save(file);
+			File file = new File(BfcPlugin.getPlugin().getDataFolder(), "data.dat");
+			BfcPlugin.getPlugin().getDataFile().save(file);
 		} catch (final IOException e) {
 			Bukkit.getLogger().severe(e.getMessage());
 		}
 	}
 
 	public static void createSection() {
-		if (!BfcPlugin.getInstance().getDataFile().contains("bfc_claim_data")) {
-			BfcPlugin.getInstance().getDataFile().createSection("bfc_claim_data");
+		if (!BfcPlugin.getPlugin().getDataFile().contains("bfc_claim_data")) {
+			BfcPlugin.getPlugin().getDataFile().createSection("bfc_claim_data");
 		}
-		if (!BfcPlugin.getInstance().getDataFile().contains("claims-ban-all")) {
-			BfcPlugin.getInstance().getDataFile().createSection("claims-ban-all");
+		if (!BfcPlugin.getPlugin().getDataFile().contains("claims-ban-all")) {
+			BfcPlugin.getPlugin().getDataFile().createSection("claims-ban-all");
 		}
 		saveDatafile();
 	}
 
 	public static void cleanDatafile() {
 		boolean clean = false;
-		final String prefix = BfcPlugin.getInstance().getDescription().getPrefix();
+		final RegionHook region = BfcPlugin.getHookManager().getActiveRegionHook();
 
-		if (!BfcPlugin.getInstance().getDataFile().getKeys(false).isEmpty()) {
-			if (!BfcPlugin.getInstance().getDataFile().getConfigurationSection("bfc_claim_data").getKeys(false).isEmpty()) {
-				for (final String claimID : BfcPlugin.getInstance().getDataFile().getConfigurationSection("bfc_claim_data").getKeys(false)) {
-					if (BfcPlugin.getInstance().getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
-						if (GriefPrevention.instance.dataStore.getClaim(Long.parseLong(claimID)) == null) {
-							BfcPlugin.getInstance().getDataFile().set("bfc_claim_data." + claimID, null);
-							clean = true;
-						}
-					} else if (BfcPlugin.getInstance().getServer().getPluginManager().getPlugin("GriefDefender") != null) {
-						final Core gd = GriefDefender.getCore();
-						final UUID uuid = UUID.fromString(claimID);
-						final Claim claim = gd.getClaim(uuid);
-
-						if (claim == null) {
-							BfcPlugin.getInstance().getDataFile().set("bfc_claim_data." + claimID, null);
-							clean = true;
-						}
+		if (!BfcPlugin.getPlugin().getDataFile().getKeys(false).isEmpty()) {
+			if (!BfcPlugin.getPlugin().getDataFile().getConfigurationSection("bfc_claim_data").getKeys(false).isEmpty()) {
+				for (final String regionID : BfcPlugin.getPlugin().getDataFile().getConfigurationSection("bfc_claim_data").getKeys(false)) {
+					if (!region.regionExist(regionID)) {
+						BfcPlugin.getPlugin().getDataFile().set("bfc_claim_data." + regionID, null);
+						clean = true;
 					}
 				}
 			}
 
-			if (!BfcPlugin.getInstance().getDataFile().getConfigurationSection("claims-ban-all").getKeys(false).isEmpty()) {
-				for (final String claimID : BfcPlugin.getInstance().getDataFile().getConfigurationSection("bfc_claim_data").getKeys(false)) {
-					if (BfcPlugin.getInstance().getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
-						if (GriefPrevention.instance.dataStore.getClaim(Long.parseLong(claimID)) == null) {
-							BfcPlugin.getInstance().getDataFile().set("claims-ban-all." + claimID, null);
-							clean = true;
-						}
-					} else if (BfcPlugin.getInstance().getServer().getPluginManager().getPlugin("GriefDefender") != null) {
-						final Core gd = GriefDefender.getCore();
-						final UUID uuid = UUID.fromString(claimID);
-						final Claim claim = gd.getClaim(uuid);
-
-						if (claim == null) {
-							BfcPlugin.getInstance().getDataFile().set("claims-ban-all." + claimID, null);
-							clean = true;
-						}
+			if (!BfcPlugin.getPlugin().getDataFile().getConfigurationSection("claims-ban-all").getKeys(false).isEmpty()) {
+				for (final String regionID : BfcPlugin.getPlugin().getDataFile().getConfigurationSection("bfc_claim_data").getKeys(false)) {
+					if (region.regionExist(regionID)) {
+						BfcPlugin.getPlugin().getDataFile().set("claims-ban-all." + regionID, null);
+						clean = true;
 					}
 				}
 			}
@@ -194,7 +189,7 @@ public class ClaimData {
 
 		if (clean) {
 			saveDatafile();
-			MessageHandler.sendConsole("&2[" + prefix + "] &eData storage has been cleared of old removed claims...");
+			Bukkit.getLogger().info("The database has been purged of expired regions...");
 		}
 	}
 }

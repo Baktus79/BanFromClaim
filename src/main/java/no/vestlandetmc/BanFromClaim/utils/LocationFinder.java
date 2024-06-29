@@ -1,12 +1,8 @@
 package no.vestlandetmc.BanFromClaim.utils;
 
-import com.griefdefender.api.Core;
-import com.griefdefender.api.GriefDefender;
-import me.ryanhamshire.GriefPrevention.DataStore;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.handler.CallbackReturnLocation;
-import no.vestlandetmc.BanFromClaim.handler.Hooks;
+import no.vestlandetmc.BanFromClaim.hooks.RegionHook;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -31,7 +27,7 @@ public class LocationFinder {
 	 */
 	public void IterateCircumferences(CallbackReturnLocation callback) {
 		final World circumferenceWorld = Bukkit.getWorld(this.circumferenceWorldUUID);
-		final BfcPlugin plugin = BfcPlugin.getInstance();
+		final BfcPlugin plugin = BfcPlugin.getPlugin();
 		Location randomCircumferenceRadiusLoc = null;
 
 		final int maxCircleIterations = 10;
@@ -53,7 +49,7 @@ public class LocationFinder {
 					if (SafeLocationCheck.BlockSafetyCheck(highestBlock)) {
 						randomCircumferenceRadiusLoc = new Location(circumferenceWorld, highestBlock.getX() + 0.5, highestBlock.getY() + 1, highestBlock.getZ() + 0.5);
 						break outer;
-					} else if (!(safeLocationChecks >= maxSafeLocationFailures))
+					} else if (safeLocationChecks < maxSafeLocationFailures)
 						j = 0; //Reset circumference position search unless it's the last safe check
 				}
 			}
@@ -88,15 +84,9 @@ public class LocationFinder {
 	}
 
 	private boolean hasClaim(Location loc) {
-		if (Hooks.gpEnabled()) {
-			final DataStore griefPreventionCore = GriefPrevention.instance.dataStore;
-			return griefPreventionCore.getClaimAt(loc, true, null) != null;
-		} else if (Hooks.gdEnabled()) {
-			final Core griefDefenderCore = GriefDefender.getCore();
-			return !griefDefenderCore.getClaimAt(loc).isWilderness();
-		} else {
-			return false;
-		}
+		final RegionHook region = BfcPlugin.getHookManager().getActiveRegionHook();
+		final String regionID = region.getRegionID(loc);
+		return regionID != null;
 	}
 
 }

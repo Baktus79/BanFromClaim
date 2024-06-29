@@ -1,15 +1,11 @@
-package no.vestlandetmc.BanFromClaim.commands.griefdefender;
+package no.vestlandetmc.BanFromClaim.commands;
 
-import com.griefdefender.api.Core;
-import com.griefdefender.api.GriefDefender;
-import com.griefdefender.api.claim.Claim;
-import com.griefdefender.api.claim.TrustTypes;
-import com.griefdefender.lib.flowpowered.math.vector.Vector3i;
+import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Messages;
 import no.vestlandetmc.BanFromClaim.handler.MessageHandler;
+import no.vestlandetmc.BanFromClaim.hooks.RegionHook;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,7 +15,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.UUID;
 
-public class BfclistCommandGD implements CommandExecutor {
+public class BfclistCommand implements CommandExecutor {
 
 	int countTo = 5;
 	int countFrom = 0;
@@ -27,17 +23,14 @@ public class BfclistCommandGD implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!(sender instanceof Player)) {
+		if (!(sender instanceof Player player)) {
 			MessageHandler.sendConsole("&cThis command can only be used in-game.");
 			return true;
 		}
 
-		final Player player = (Player) sender;
-		final Location loc = player.getLocation();
-		final Vector3i vector = Vector3i.from(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-		final Core gd = GriefDefender.getCore();
-		final Claim claim = gd.getClaimManager(loc.getWorld().getUID()).getClaimAt(vector);
 		final ClaimData claimData = new ClaimData();
+		final RegionHook region = BfcPlugin.getHookManager().getActiveRegionHook();
+		final String regionID = region.getRegionID(player);
 
 		if (args.length != 0) {
 			if (isInt(args[0])) {
@@ -50,20 +43,12 @@ public class BfclistCommandGD implements CommandExecutor {
 			}
 		}
 
-		if (claim.isWilderness()) {
+		if (regionID == null) {
 			MessageHandler.sendMessage(player, Messages.OUTSIDE_CLAIM);
 			return true;
 		}
 
-		final boolean isManager = claim.getUserTrusts(TrustTypes.MANAGER).contains(player.getUniqueId());
-		final boolean isOwner = claim.getOwnerUniqueId().equals(player.getUniqueId());
-		boolean allowBan = false;
-
-		if (isOwner || isManager) {
-			allowBan = true;
-		} else if (player.hasPermission("bfc.admin")) {
-			allowBan = true;
-		}
+		boolean allowBan = player.hasPermission("bfc.admin") || region.isOwner(player, regionID) || region.isManager(player, regionID);
 
 		int totalPage;
 
@@ -72,19 +57,19 @@ public class BfclistCommandGD implements CommandExecutor {
 			return true;
 
 		} else {
-			MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_HEADER, null, player.getDisplayName(), claim.getOwnerName()));
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_HEADER, null, player.getDisplayName(), region.getClaimOwnerName(regionID)));
 
-			if (claimData.isAllBanned(claim.getUniqueId().toString())) {
+			if (claimData.isAllBanned(regionID)) {
 				MessageHandler.sendMessage(player, Messages.LIST_BAN_ALL);
 				return true;
 			}
 
-			if (listPlayers(claim.getUniqueId().toString()) == null) {
-				MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_EMPTY, null, player.getDisplayName(), claim.getOwnerName()));
+			if (listPlayers(regionID) == null) {
+				MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_EMPTY, null, player.getDisplayName(), region.getClaimOwnerName(regionID)));
 				return true;
 			} else {
-				totalPage = listPlayers(claim.getUniqueId().toString()).size() / 5 + 1;
-				for (int i = 0; i < listPlayers(claim.getUniqueId().toString()).toArray().length; i++) {
+				totalPage = listPlayers(regionID).size() / 5 + 1;
+				for (int i = 0; i < listPlayers(regionID).toArray().length; i++) {
 					if (this.number > totalPage || this.number == 0) {
 						this.countTo = 5 * totalPage;
 						this.countFrom = 5 * totalPage - 5;
@@ -92,7 +77,7 @@ public class BfclistCommandGD implements CommandExecutor {
 					}
 
 					if (i >= this.countFrom) {
-						final String bp = (String) listPlayers(claim.getUniqueId().toString()).toArray()[i];
+						final String bp = (String) listPlayers(regionID).toArray()[i];
 						final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(UUID.fromString(bp));
 						MessageHandler.sendMessage(player, "&6" + bannedPlayer.getName());
 
@@ -101,7 +86,6 @@ public class BfclistCommandGD implements CommandExecutor {
 							MessageHandler.sendMessage(player, "&e<--- [&6" + this.number + "\\" + totalPage + "&e] --->");
 							break;
 						}
-
 					}
 				}
 
