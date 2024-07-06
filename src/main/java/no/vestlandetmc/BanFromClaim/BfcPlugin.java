@@ -1,6 +1,7 @@
 package no.vestlandetmc.BanFromClaim;
 
 import lombok.Getter;
+import no.vestlandetmc.BanFromClaim.apiversions.VersionManager;
 import no.vestlandetmc.BanFromClaim.commands.*;
 import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import no.vestlandetmc.BanFromClaim.config.Config;
@@ -28,6 +29,8 @@ public class BfcPlugin extends JavaPlugin {
 	private static BfcPlugin plugin;
 	@Getter
 	private static HookManager hookManager;
+	@Getter
+	private static VersionManager versionManager;
 
 	private FileConfiguration data;
 
@@ -42,6 +45,7 @@ public class BfcPlugin extends JavaPlugin {
 		MessageHandler.sendConsole("");
 
 		Config.initialize();
+		versionManager = new VersionManager();
 		hookManager = new HookManager();
 
 		this.getServer().getPluginManager().registerEvents(new RegionListener(), this);
