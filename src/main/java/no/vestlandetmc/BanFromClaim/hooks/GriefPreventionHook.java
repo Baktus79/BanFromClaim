@@ -29,7 +29,7 @@ public class GriefPreventionHook implements RegionHook {
 	public boolean isManager(OfflinePlayer player, String regionID) {
 		final Claim claim = GriefPrevention.instance.dataStore.getClaim(Long.parseLong(regionID));
 		final Supplier<String> isManager = claim.checkPermission(player.getUniqueId(), ClaimPermission.Manage, null);
-		return isManager.get() == null;
+		return isManager == null;
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class GriefPreventionHook implements RegionHook {
 
 		for (ClaimPermission claimPermission : ClaimPermission.values()) {
 			if (claimPermission != ClaimPermission.Edit) {
-				if (claim.checkPermission(player.getUniqueId(), claimPermission, null).get() == null) {
+				if (claim.checkPermission(player.getUniqueId(), claimPermission, null) == null) {
 					return true;
 				}
 			}

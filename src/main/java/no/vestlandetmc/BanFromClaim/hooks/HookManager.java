@@ -5,9 +5,9 @@ import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
+@Getter
 public class HookManager {
 
-	@Getter
 	private RegionHook activeRegionHook;
 
 	public HookManager() {
