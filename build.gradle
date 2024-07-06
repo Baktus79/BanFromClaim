@@ -1,11 +1,11 @@
 plugins {
     id 'java'
     id 'io.freefair.lombok' version '8.4'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id "io.github.goooler.shadow" version '8.1.7'
 }
 
 group = 'no.vestlandetmc'
-version = '1.7.0'
+version = '1.7.1'
 
 repositories {
     mavenCentral()
@@ -33,7 +33,7 @@ jar {
     enabled = false
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 21
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
