@@ -54,7 +54,7 @@ public class RegionListener implements Listener {
 
 			if ((claimData.isAllBanned(regionID) || playerBanned(player, regionID)) && !hasAttacked && !region.hasTrust(player, regionID)) {
 				final String regionIdFrom = region.getRegionID(locFrom);
-				
+
 				if (regionIdFrom != null && regionIdFrom.equals(regionID)) {
 					if (playerBanned(player, regionID) || claimData.isAllBanned(regionID)) {
 						final int sizeRadius = region.sizeRadius(regionID);
@@ -113,8 +113,8 @@ public class RegionListener implements Listener {
 	}
 
 	private boolean canBypass(Player player) {
-        return player.hasPermission("bfc.bypass") || player.getGameMode().equals(GameMode.SPECTATOR);
-    }
+		return player.hasPermission("bfc.bypass") || player.getGameMode().equals(GameMode.SPECTATOR);
+	}
 
 	private boolean playerBanned(Player player, String claimID) {
 		final ClaimData claimData = new ClaimData();
