@@ -42,16 +42,15 @@ public class RegionListener implements Listener {
 			final Player target = PlayerRidePlayer.getPassenger(player);
 			boolean hasAttacked = false;
 
-			if (target != null && (claimData.isAllBanned(regionID) || playerBanned(target, regionID) || playerBanned(player, regionID))) {
+			if (target != null && !region.hasTrust(target, regionID) && !canBypass(target)
+					&& (claimData.isAllBanned(regionID) || playerBanned(target, regionID) || playerBanned(player, regionID))) {
 				target.teleport(player.getLocation().add(0, 4, 0));
 			}
 
 			if (CombatMode.attackerContains(player.getUniqueId()))
 				hasAttacked = CombatMode.getAttacker(player.getUniqueId()).equals(ownerUUID);
 
-			if (player.hasPermission("bfc.bypass") || player.getGameMode().equals(GameMode.SPECTATOR)) {
-				return;
-			}
+			if (canBypass(player)) return;
 
 			if ((claimData.isAllBanned(regionID) || playerBanned(player, regionID)) && !hasAttacked && !region.hasTrust(player, regionID)) {
 				final String regionIdFrom = region.getRegionID(locFrom);
@@ -112,6 +111,10 @@ public class RegionListener implements Listener {
 		}
 
 	}
+
+	private boolean canBypass(Player player) {
+        return player.hasPermission("bfc.bypass") || player.getGameMode().equals(GameMode.SPECTATOR);
+    }
 
 	private boolean playerBanned(Player player, String claimID) {
 		final ClaimData claimData = new ClaimData();
