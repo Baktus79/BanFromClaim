@@ -101,6 +101,7 @@ public class GriefDefenderHook implements RegionHook {
 	public boolean regionExist(String regionID) {
 		final Core gd = GriefDefender.getCore();
 		final Claim claim = gd.getClaim(UUID.fromString(regionID));
-		return !claim.isWilderness();
+
+		return claim != null && !claim.isWilderness();
 	}
 }
