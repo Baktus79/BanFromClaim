@@ -79,7 +79,8 @@ public class BfclistCommand implements CommandExecutor {
 					if (i >= this.countFrom) {
 						final String bp = (String) listPlayers(regionID).toArray()[i];
 						final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(UUID.fromString(bp));
-						MessageHandler.sendMessage(player, "&6" + bannedPlayer.getName());
+						final String bannedPlayerName = bannedPlayer.getName() == null ? bp : bannedPlayer.getName();
+						MessageHandler.sendMessage(player, "&6" + bannedPlayerName);
 
 						if (i == this.countTo) {
 							MessageHandler.sendMessage(player, "");

@@ -51,7 +51,11 @@ public class UnbfcCommand implements CommandExecutor {
 			if (listPlayers(regionID) != null) {
 				for (final String bp : listPlayers(regionID)) {
 					final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(UUID.fromString(bp));
-					if (bannedPlayer.getName().equalsIgnoreCase(args[0])) {
+					final String bannedPlayerName = bannedPlayer.getName();
+
+					if (bannedPlayerName == null) {
+						setClaimData(regionID, bp, false);
+					} else if (bannedPlayerName.equalsIgnoreCase(args[0])) {
 						bPlayer = bannedPlayer;
 						if (setClaimData(regionID, bp, false)) {
 							MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNBANNED, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
@@ -74,13 +78,11 @@ public class UnbfcCommand implements CommandExecutor {
 
 	private List<String> listPlayers(String claimID) {
 		final ClaimData claimData = new ClaimData();
-
 		return claimData.bannedPlayers(claimID);
 	}
 
 	private boolean setClaimData(String claimID, String bannedUUID, boolean add) {
 		final ClaimData claimData = new ClaimData();
-
 		return claimData.setClaimData(claimID, bannedUUID, add);
 	}
 
