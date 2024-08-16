@@ -2,7 +2,6 @@ package no.vestlandetmc.BanFromClaim.config;
 
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import no.vestlandetmc.BanFromClaim.hooks.RegionHook;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
@@ -149,7 +148,7 @@ public class ClaimData {
 			File file = new File(BfcPlugin.getPlugin().getDataFolder(), "data.dat");
 			BfcPlugin.getPlugin().getDataFile().save(file);
 		} catch (final IOException e) {
-			Bukkit.getLogger().severe(e.getMessage());
+			BfcPlugin.getPlugin().getLogger().severe(e.getMessage());
 		}
 	}
 
@@ -189,7 +188,7 @@ public class ClaimData {
 
 		if (clean) {
 			saveDatafile();
-			Bukkit.getLogger().info("The database has been purged of expired regions...");
+			BfcPlugin.getPlugin().getLogger().info("The database has been purged of expired regions...");
 		}
 	}
 }
