@@ -33,63 +33,52 @@ public class RegionListener implements Listener {
 		}
 
 		final Player player = e.getPlayer();
-		final RegionHook region = BfcPlugin.getHookManager().getActiveRegionHook();
-		final String regionID = region.getRegionID(locTo);
-		final ParticleHandler ph = new ParticleHandler(e.getTo());
+		final RegionHook regionHook = BfcPlugin.getHookManager().getActiveRegionHook();
+		final String regionID = regionHook.getRegionID(locTo);
+		final ParticleHandler ph = new ParticleHandler(locTo);
 
-		if (regionID != null) {
-			final UUID ownerUUID = region.getOwnerID(regionID);
-			final Player target = PlayerRidePlayer.getPassenger(player);
-			boolean hasAttacked = false;
+		if (regionID == null) return;
 
-			if (target != null && !region.hasTrust(target, regionID) && !canBypass(target)
-					&& (claimData.isAllBanned(regionID) || playerBanned(target, regionID) || playerBanned(player, regionID))) {
-				target.teleport(player.getLocation().add(0, 4, 0));
-			}
+		final UUID ownerUUID = regionHook.getOwnerID(regionID);
+		final Player target = PlayerRidePlayer.getPassenger(player);
+		boolean hasAttacked = false;
 
-			if (CombatMode.attackerContains(player.getUniqueId()))
-				hasAttacked = CombatMode.getAttacker(player.getUniqueId()).equals(ownerUUID);
+		if (target != null && !regionHook.hasTrust(target, regionID) && !canBypass(target)
+				&& (claimData.isAllBanned(regionID) || playerBanned(target, regionID) || playerBanned(player, regionID))) {
+			target.teleport(player.getLocation().add(0, 4, 0));
+		}
 
-			if (canBypass(player)) return;
+		if (CombatMode.attackerContains(player.getUniqueId()))
+			hasAttacked = CombatMode.getAttacker(player.getUniqueId()).equals(ownerUUID);
 
-			if ((claimData.isAllBanned(regionID) || playerBanned(player, regionID)) && !hasAttacked && !region.hasTrust(player, regionID)) {
-				final String regionIdFrom = region.getRegionID(locFrom);
+		if (canBypass(player)) return;
 
-				if (regionIdFrom != null && regionIdFrom.equals(regionID)) {
-					if (playerBanned(player, regionID) || claimData.isAllBanned(regionID)) {
-						final int sizeRadius = region.sizeRadius(regionID);
-						final Location greaterBoundaryCorner = region.getGreaterBoundaryCorner(regionID);
-						final Location lesserBoundaryCorner = region.getLesserBoundaryCorner(regionID);
+		if ((claimData.isAllBanned(regionID) || playerBanned(player, regionID)) && !hasAttacked && !regionHook.hasTrust(player, regionID)) {
+			final String regionIdFrom = regionHook.getRegionID(locFrom);
 
-						final LocationFinder lf = new LocationFinder(greaterBoundaryCorner, lesserBoundaryCorner, player.getWorld().getUID(), sizeRadius);
-						Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getPlugin(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
-							if (randomCircumferenceRadiusLoc == null) {
-								if (Config.SAFE_LOCATION == null) {
-									player.teleport(player.getWorld().getSpawnLocation());
-								} else {
-									player.teleport(Config.SAFE_LOCATION);
-								}
+			if (regionIdFrom != null && regionIdFrom.equals(regionID)) {
+				if (playerBanned(player, regionID) || claimData.isAllBanned(regionID)) {
+					final int sizeRadius = regionHook.sizeRadius(regionID);
+					final Location greaterBoundaryCorner = regionHook.getGreaterBoundaryCorner(regionID);
+					final Location lesserBoundaryCorner = regionHook.getLesserBoundaryCorner(regionID);
+
+					final LocationFinder lf = new LocationFinder(greaterBoundaryCorner, lesserBoundaryCorner, player.getWorld().getUID(), sizeRadius);
+					Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getPlugin(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
+						if (randomCircumferenceRadiusLoc == null) {
+							if (Config.SAFE_LOCATION == null) {
+								player.teleport(player.getWorld().getSpawnLocation());
 							} else {
-								player.teleport(randomCircumferenceRadiusLoc);
+								player.teleport(Config.SAFE_LOCATION);
 							}
-
-						}));
-
-					} else {
-						final Location tpLoc = player.getLocation().add(e.getFrom().toVector().subtract(e.getTo().toVector()).normalize().multiply(3));
-
-						if (tpLoc.getBlock().getType().equals(Material.AIR)) {
-							player.teleport(tpLoc);
 						} else {
-							final Location safeLoc = tpLoc.getWorld().getHighestBlockAt(tpLoc).getLocation().add(0D, 1D, 0D);
-							player.teleport(safeLoc);
+							player.teleport(randomCircumferenceRadiusLoc);
 						}
 
-						ph.drawCircle(1, e.getTo().getBlockX() == e.getFrom().getBlockX());
-					}
+					}));
 
 				} else {
 					final Location tpLoc = player.getLocation().add(e.getFrom().toVector().subtract(e.getTo().toVector()).normalize().multiply(3));
+
 					if (tpLoc.getBlock().getType().equals(Material.AIR)) {
 						player.teleport(tpLoc);
 					} else {
@@ -100,14 +89,24 @@ public class RegionListener implements Listener {
 					ph.drawCircle(1, e.getTo().getBlockX() == e.getFrom().getBlockX());
 				}
 
-				if (!MessageHandler.spamMessageClaim.contains(player.getUniqueId().toString())) {
-					MessageHandler.sendTitle(player, Messages.TITLE_MESSAGE, Messages.SUBTITLE_MESSAGE);
-					MessageHandler.spamMessageClaim.add(player.getUniqueId().toString());
-
-					Bukkit.getScheduler().runTaskLater(BfcPlugin.getPlugin(), () -> MessageHandler.spamMessageClaim.remove(player.getUniqueId().toString()), 5L * 20L);
+			} else {
+				final Location tpLoc = player.getLocation().add(e.getFrom().toVector().subtract(e.getTo().toVector()).normalize().multiply(3));
+				if (tpLoc.getBlock().getType().equals(Material.AIR)) {
+					player.teleport(tpLoc);
+				} else {
+					final Location safeLoc = tpLoc.getWorld().getHighestBlockAt(tpLoc).getLocation().add(0D, 1D, 0D);
+					player.teleport(safeLoc);
 				}
+
+				ph.drawCircle(1, e.getTo().getBlockX() == e.getFrom().getBlockX());
 			}
 
+			if (!MessageHandler.spamMessageClaim.contains(player.getUniqueId().toString())) {
+				MessageHandler.sendTitle(player, Messages.TITLE_MESSAGE, Messages.SUBTITLE_MESSAGE);
+				MessageHandler.spamMessageClaim.add(player.getUniqueId().toString());
+
+				Bukkit.getScheduler().runTaskLater(BfcPlugin.getPlugin(), () -> MessageHandler.spamMessageClaim.remove(player.getUniqueId().toString()), 5L * 20L);
+			}
 		}
 
 	}

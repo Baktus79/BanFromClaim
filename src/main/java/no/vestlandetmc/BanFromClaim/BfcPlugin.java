@@ -18,7 +18,6 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,8 +30,8 @@ public class BfcPlugin extends JavaPlugin {
 	private static HookManager hookManager;
 	@Getter
 	private static VersionManager versionManager;
-
-	private FileConfiguration data;
+	@Getter
+	private static FileConfiguration dataFile;
 
 	@Override
 	public void onEnable() {
@@ -70,14 +69,6 @@ public class BfcPlugin extends JavaPlugin {
 			new CombatScheduler().runTaskTimer(this, 0L, 20L);
 		}
 
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				ClaimData.cleanDatafile();
-			}
-
-		}.runTaskTimer(this, 30 * 20L, 3600 * 20L);
-
 		new UpdateNotification(70897) {
 
 			@Override
@@ -94,24 +85,20 @@ public class BfcPlugin extends JavaPlugin {
 
 	}
 
-	public FileConfiguration getDataFile() {
-		return this.data;
-	}
-
 	public void createDatafile() {
-		final File dataFile = new File(this.getDataFolder(), "data.dat");
-		if (!dataFile.exists()) {
-			dataFile.getParentFile().mkdirs();
+		final File newDataFile = new File(this.getDataFolder(), "data.dat");
+		if (!newDataFile.exists()) {
+			newDataFile.getParentFile().mkdirs();
 			try {
-				dataFile.createNewFile();
+				newDataFile.createNewFile();
 			} catch (final IOException e) {
 				getLogger().severe(e.getMessage());
 			}
 		}
 
-		data = new YamlConfiguration();
+		dataFile = new YamlConfiguration();
 		try {
-			data.load(dataFile);
+			dataFile.load(newDataFile);
 		} catch (IOException | InvalidConfigurationException e) {
 			getLogger().severe(e.getMessage());
 		}

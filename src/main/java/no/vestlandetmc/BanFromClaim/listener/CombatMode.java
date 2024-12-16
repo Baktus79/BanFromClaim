@@ -15,15 +15,13 @@ public class CombatMode implements Listener {
 
 	@EventHandler
 	public void playerHit(EntityDamageByEntityEvent e) {
-		if (!(e.getEntity() instanceof Player)) {
+		if (!(e.getEntity() instanceof Player victim)) {
 			return;
 		}
-		if (!(e.getDamager() instanceof Player)) {
+		if (!(e.getDamager() instanceof Player attacker)) {
 			return;
 		}
 
-		final Player victim = (Player) e.getEntity();
-		final Player attacker = (Player) e.getDamager();
 		final long time = System.currentTimeMillis() / 1000;
 
 		if (TIME.containsKey(attacker.getUniqueId())) {

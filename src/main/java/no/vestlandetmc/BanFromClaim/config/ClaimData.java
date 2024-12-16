@@ -1,7 +1,6 @@
 package no.vestlandetmc.BanFromClaim.config;
 
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
-import no.vestlandetmc.BanFromClaim.hooks.RegionHook;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
@@ -11,7 +10,7 @@ import java.util.List;
 
 public class ClaimData {
 
-	private final FileConfiguration cfg = BfcPlugin.getPlugin().getDataFile();
+	private final FileConfiguration cfg = BfcPlugin.getDataFile();
 	private final String prefix = "bfc_claim_data";
 
 	public ClaimData() {
@@ -143,52 +142,22 @@ public class ClaimData {
 		return null;
 	}
 
-	private static void saveDatafile() {
+	public static void saveDatafile() {
 		try {
 			File file = new File(BfcPlugin.getPlugin().getDataFolder(), "data.dat");
-			BfcPlugin.getPlugin().getDataFile().save(file);
+			BfcPlugin.getDataFile().save(file);
 		} catch (final IOException e) {
 			BfcPlugin.getPlugin().getLogger().severe(e.getMessage());
 		}
 	}
 
 	public static void createSection() {
-		if (!BfcPlugin.getPlugin().getDataFile().contains("bfc_claim_data")) {
-			BfcPlugin.getPlugin().getDataFile().createSection("bfc_claim_data");
+		if (!BfcPlugin.getDataFile().contains("bfc_claim_data")) {
+			BfcPlugin.getDataFile().createSection("bfc_claim_data");
 		}
-		if (!BfcPlugin.getPlugin().getDataFile().contains("claims-ban-all")) {
-			BfcPlugin.getPlugin().getDataFile().createSection("claims-ban-all");
+		if (!BfcPlugin.getDataFile().contains("claims-ban-all")) {
+			BfcPlugin.getDataFile().createSection("claims-ban-all");
 		}
 		saveDatafile();
-	}
-
-	public static void cleanDatafile() {
-		boolean clean = false;
-		final RegionHook region = BfcPlugin.getHookManager().getActiveRegionHook();
-
-		if (!BfcPlugin.getPlugin().getDataFile().getKeys(false).isEmpty()) {
-			if (!BfcPlugin.getPlugin().getDataFile().getConfigurationSection("bfc_claim_data").getKeys(false).isEmpty()) {
-				for (final String regionID : BfcPlugin.getPlugin().getDataFile().getConfigurationSection("bfc_claim_data").getKeys(false)) {
-					if (!region.regionExist(regionID)) {
-						BfcPlugin.getPlugin().getDataFile().set("bfc_claim_data." + regionID, null);
-						clean = true;
-					}
-				}
-			}
-
-			if (!BfcPlugin.getPlugin().getDataFile().getConfigurationSection("claims-ban-all").getKeys(false).isEmpty()) {
-				for (final String regionID : BfcPlugin.getPlugin().getDataFile().getConfigurationSection("bfc_claim_data").getKeys(false)) {
-					if (region.regionExist(regionID)) {
-						BfcPlugin.getPlugin().getDataFile().set("claims-ban-all." + regionID, null);
-						clean = true;
-					}
-				}
-			}
-		}
-
-		if (clean) {
-			saveDatafile();
-			BfcPlugin.getPlugin().getLogger().info("The database has been purged of expired regions...");
-		}
 	}
 }
