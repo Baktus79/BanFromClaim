@@ -4,15 +4,25 @@ import com.griefdefender.api.Core;
 import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.claim.Claim;
 import com.griefdefender.api.claim.TrustTypes;
+import com.griefdefender.api.event.RemoveClaimEvent;
 import com.griefdefender.lib.flowpowered.math.vector.Vector3i;
+import com.griefdefender.lib.kyori.event.EventSubscriber;
+import no.vestlandetmc.BanFromClaim.BfcPlugin;
+import no.vestlandetmc.BanFromClaim.config.ClaimData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.UUID;
 
 public class GriefDefenderHook implements RegionHook {
+
+	public GriefDefenderHook() {
+		registerDeleteClaimEvent();
+	}
 
 	@Override
 	public boolean isInsideRegion(Player player) {
@@ -48,6 +58,19 @@ public class GriefDefenderHook implements RegionHook {
 		final Core gd = GriefDefender.getCore();
 		final Claim claim = gd.getClaimManager(location.getWorld().getUID()).getClaimAt(vector);
 		return !claim.isWilderness() ? claim.getUniqueId().toString() : null;
+	}
+
+	@Override
+	public Object getRegion(Player player) {
+		return getRegion(player.getLocation());
+	}
+
+	@Override
+	public Object getRegion(Location location) {
+		final Vector3i vector = Vector3i.from(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+		final Core gd = GriefDefender.getCore();
+		final Claim claim = gd.getClaimManager(location.getWorld().getUID()).getClaimAt(vector);
+		return !claim.isWilderness() ? claim : null;
 	}
 
 	@Override
@@ -103,5 +126,30 @@ public class GriefDefenderHook implements RegionHook {
 		final Claim claim = gd.getClaim(UUID.fromString(regionID));
 
 		return claim != null && !claim.isWilderness();
+	}
+
+	private void registerDeleteClaimEvent() {
+		GriefDefender.getEventManager().getBus().subscribe(RemoveClaimEvent.class, new EventSubscriber<RemoveClaimEvent>() {
+
+			@Override
+			public void on(@NonNull RemoveClaimEvent event) throws Throwable {
+				final FileConfiguration data = BfcPlugin.getDataFile();
+				boolean dataChange = false;
+
+				if (data.contains("bfc_claim_data." + event.getClaim().getUniqueId().toString())) {
+					data.set("bfc_claim_data." + event.getClaim().getUniqueId().toString(), null);
+					dataChange = true;
+				}
+
+				if (data.contains("claims-ban-all." + event.getClaim().getUniqueId().toString())) {
+					data.set("claims-ban-all." + event.getClaim().getUniqueId().toString(), null);
+					dataChange = true;
+				}
+
+				if (dataChange) {
+					ClaimData.saveDatafile();
+				}
+			}
+		});
 	}
 }

@@ -3,6 +3,7 @@ package no.vestlandetmc.BanFromClaim.hooks;
 import lombok.Getter;
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import org.bukkit.Bukkit;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
 @Getter
@@ -24,6 +25,10 @@ public class HookManager {
 		} else {
 			BfcPlugin.getPlugin().getLogger().warning("No supported protection plugins found!");
 			Bukkit.getPluginManager().disablePlugin(BfcPlugin.getPlugin());
+		}
+
+		if (activeRegionHook instanceof Listener) {
+			Bukkit.getPluginManager().registerEvents((Listener) activeRegionHook, BfcPlugin.getPlugin());
 		}
 	}
 
