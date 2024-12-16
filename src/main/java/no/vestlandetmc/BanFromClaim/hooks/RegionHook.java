@@ -17,6 +17,10 @@ public interface RegionHook {
 	String getRegionID(Player player);
 
 	String getRegionID(Location location);
+	
+	Object getRegion(Player player);
+
+	Object getRegion(Location location);
 
 	Location getGreaterBoundaryCorner(String regionID);
 
