@@ -1,11 +1,11 @@
 plugins {
     id 'java'
-    id 'io.freefair.lombok' version '8.7.1'
+    id 'io.freefair.lombok' version '8.11'
     id "io.github.goooler.shadow" version '8.1.8'
 }
 
 group = 'no.vestlandetmc'
-version = '1.7.4'
+version = '1.7.5'
 
 repositories {
     mavenCentral()
@@ -16,10 +16,10 @@ repositories {
 
 dependencies {
     compileOnly fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly 'org.spigotmc:spigot-api:1.21.1-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.21.4-R0.1-SNAPSHOT'
     compileOnly 'com.github.GriefPrevention:GriefPrevention:16.18.4'
-    compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
-    implementation 'org.bstats:bstats-bukkit:3.0.2'
+    compileOnly 'com.griefdefender:api:2.1.1-SNAPSHOT'
+    implementation 'org.bstats:bstats-bukkit:3.1.0'
 }
 
 shadowJar {
