@@ -42,22 +42,20 @@ public class BfcCommand implements CommandExecutor {
 		final OfflinePlayer bannedPlayer = Bukkit.getOfflinePlayer(args[0]);
 		boolean allowBan = player.hasPermission("bfc.admin") || region.isOwner(player, regionID) || region.isManager(player, regionID);
 
-		if (!bannedPlayer.isOnline()) {
-			if (!bannedPlayer.hasPlayedBefore()) {
-				MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], player.getDisplayName(), null));
-				return true;
-			} else if (bannedPlayer == player) {
-				MessageHandler.sendMessage(player, Messages.BAN_SELF);
-				return true;
-			} else if (region.isOwner(bannedPlayer, regionID)) {
-				MessageHandler.sendMessage(player, Messages.BAN_OWNER);
-				return true;
-			}
-		} else {
-			if (bannedPlayer.getPlayer().hasPermission("bfc.bypass")) {
-				MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, bannedPlayer.getPlayer().getDisplayName(), null, null));
-				return true;
-			}
+		if (bannedPlayer.getUniqueId().toString().equals(player.getUniqueId().toString())) {
+			MessageHandler.sendMessage(player, Messages.BAN_SELF);
+			return true;
+		} else if (!bannedPlayer.hasPlayedBefore()) {
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], player.getDisplayName(), null));
+			return true;
+		} else if (region.isOwner(bannedPlayer, regionID)) {
+			MessageHandler.sendMessage(player, Messages.BAN_OWNER);
+			return true;
+		}
+
+		if (bannedPlayer.isOnline() && bannedPlayer.getPlayer().hasPermission("bfc.bypass")) {
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, bannedPlayer.getPlayer().getDisplayName(), null, null));
+			return true;
 		}
 
 		if (!allowBan) {

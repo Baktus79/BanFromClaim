@@ -1,22 +1,22 @@
 plugins {
     id 'java'
-    id 'io.freefair.lombok' version '8.11'
+    id 'io.freefair.lombok' version '8.13'
     id "io.github.goooler.shadow" version '8.1.8'
 }
 
 group = 'no.vestlandetmc'
-version = '1.7.5'
+version = '1.7.6'
 
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
-    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url 'https://repo.papermc.io/repository/maven-public/' }
     maven { url 'https://repo.glaremasters.me/repository/bloodshot/' }
 }
 
 dependencies {
     compileOnly fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly 'org.spigotmc:spigot-api:1.21.4-R0.1-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT'
     compileOnly 'com.github.GriefPrevention:GriefPrevention:16.18.4'
     compileOnly 'com.griefdefender:api:2.1.1-SNAPSHOT'
     implementation 'org.bstats:bstats-bukkit:3.1.0'
