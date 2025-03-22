@@ -5,13 +5,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CombatMode implements Listener {
 
-	private static final HashMap<UUID, Long> TIME = new HashMap<>();
-	private static final HashMap<UUID, UUID> ATTACKER = new HashMap<>();
+	private static final ConcurrentHashMap<UUID, Long> TIME = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<UUID, UUID> ATTACKER = new ConcurrentHashMap<>();
 
 	@EventHandler
 	public void playerHit(EntityDamageByEntityEvent e) {
@@ -62,7 +62,7 @@ public class CombatMode implements Listener {
 		ATTACKER.remove(victim);
 	}
 
-	public static HashMap<UUID, Long> getAllTime() {
+	public static ConcurrentHashMap<UUID, Long> getAllTime() {
 		return TIME;
 	}
 
