@@ -9,26 +9,27 @@ import org.bukkit.plugin.Plugin;
 @Getter
 public class HookManager {
 
-	private RegionHook activeRegionHook;
+	private final RegionHook activeRegionHook;
 
 	public HookManager() {
+
 		if (isPluginAvailable("GriefPrevention")) {
 			activeRegionHook = new GriefPreventionHook();
 			BfcPlugin.getPlugin().getLogger().info("GriefPrevention detected and hooked.");
+
 		} else if (isPluginAvailable("GriefDefender")) {
 			activeRegionHook = new GriefDefenderHook();
 			BfcPlugin.getPlugin().getLogger().info("GriefDefender detected and hooked.");
-		} else if (isPluginAvailable("Residence")) {
-			activeRegionHook = new ResidenceHook();
-			BfcPlugin.getPlugin().getServer().getPluginManager().registerEvents(new ResidenceHook(), BfcPlugin.getPlugin());
-			BfcPlugin.getPlugin().getLogger().info("Residence detected and hooked.");
+
 		} else {
-			BfcPlugin.getPlugin().getLogger().warning("No supported protection plugins found!");
+			activeRegionHook = null;
+			BfcPlugin.getPlugin().getLogger().warning("No supported protection plugins found! (GriefPrevention / GriefDefender required)");
 			Bukkit.getPluginManager().disablePlugin(BfcPlugin.getPlugin());
+			return;
 		}
 
-		if (activeRegionHook instanceof Listener) {
-			Bukkit.getPluginManager().registerEvents((Listener) activeRegionHook, BfcPlugin.getPlugin());
+		if (activeRegionHook instanceof Listener listener) {
+			Bukkit.getPluginManager().registerEvents(listener, BfcPlugin.getPlugin());
 		}
 	}
 

@@ -2,162 +2,238 @@ package no.vestlandetmc.BanFromClaim.config;
 
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * Stores per-claim ban lists and "ban all" flags in plugins/BanFromClaim/claimdata.yml
+ *
+ * Fixes:
+ * - No reliance on BfcPlugin.getDataFile() (which was null -> NPE spam)
+ * - Loads YAML lazily and safely
+ * - Saves only after modifications
+ */
 public class ClaimData {
 
-	private final FileConfiguration cfg = BfcPlugin.getDataFile();
-	private final String prefix = "bfc_claim_data";
+	private static final String FILE_NAME = "claimdata.yml";
+	private static final String PREFIX = "bfc_claim_data";
+	private static final String BAN_ALL_PREFIX = "claims-ban-all";
+
+	private static File file;
+	private static FileConfiguration cfg;
 
 	public ClaimData() {
-
+		ensureLoaded();
 	}
 
+	// -------------------------
+	// Public API (same behavior)
+	// -------------------------
+
 	public boolean setClaimData(String claimID, String bannedUUID, boolean add) {
+		if (claimID == null || claimID.isBlank() || bannedUUID == null || bannedUUID.isBlank()) return false;
+		ensureLoaded();
+
 		if (add) {
-			if (!existData(claimID, bannedUUID)) {
-				addData(claimID, bannedUUID);
-				return true;
-			} else {
-				return false;
-			}
+			if (existData(claimID, bannedUUID)) return false;
+			addData(claimID, bannedUUID);
+			return true;
 		} else {
-			if (existData(claimID, bannedUUID)) {
-				removeData(claimID, bannedUUID);
-				return true;
-			} else {
-				return false;
-			}
+			if (!existData(claimID, bannedUUID)) return false;
+			removeData(claimID, bannedUUID);
+			return true;
 		}
 	}
 
 	public void changeRegionID(String oldID, String newID) {
-		if (cfg.contains(prefix + "." + oldID)) {
-			if (cfg.getStringList(prefix + "." + oldID).isEmpty()) {
-				cfg.set(prefix + "." + oldID, null);
-			} else {
-				final List<String> uuid = bannedPlayers(oldID);
-				boolean banAll = false;
+		if (oldID == null || oldID.isBlank() || newID == null || newID.isBlank()) return;
+		ensureLoaded();
 
-				if (cfg.contains("claims-ban-all" + "." + oldID + ".ban-all")) {
-					banAll = cfg.getBoolean("claims-ban-all" + "." + oldID + ".ban-all");
-				}
+		final String oldPath = claimPath(oldID);
+		if (!cfg.contains(oldPath)) return;
 
-				cfg.createSection(prefix + "." + newID);
-				cfg.set("claims-ban-all" + "." + newID + ".ban-all", banAll);
+		final List<String> oldList = cfg.getStringList(oldPath);
+		final boolean banAll = isAllBanned(oldID);
 
-				if (uuid != null && !uuid.isEmpty()) {
-					cfg.set(prefix + "." + newID, uuid);
-				}
-
-				cfg.set("claims-ban-all" + "." + oldID, null);
-				cfg.set(prefix + "." + oldID, null);
-				saveDatafile();
-			}
-		}
-	}
-
-	private void addData(String claimID, String bannedUUID) {
-		final List<String> uuid = new ArrayList<>();
-
-		if (!cfg.contains(prefix + "." + claimID)) {
-			cfg.createSection(prefix + "." + claimID);
+		// If old list is empty AND no ban-all flag, just clean up
+		if ((oldList == null || oldList.isEmpty()) && !banAll) {
+			cfg.set(oldPath, null);
+			cfg.set(banAllPath(oldID), null);
+			saveDatafile();
+			return;
 		}
 
-		if (!cfg.getStringList(prefix + "." + claimID).isEmpty()) {
-			uuid.addAll(cfg.getStringList(prefix + "." + claimID));
+		// Move list
+		final String newPath = claimPath(newID);
+		if (oldList != null && !oldList.isEmpty()) {
+			cfg.set(newPath, new ArrayList<>(oldList));
+		} else {
+			cfg.set(newPath, null);
 		}
 
-		uuid.add(bannedUUID);
-		cfg.set(prefix + "." + claimID, uuid);
+		// Move ban-all
+		cfg.set(banAllValuePath(newID), banAll);
+
+		// Clear old
+		cfg.set(oldPath, null);
+		cfg.set(banAllPath(oldID), null);
+
 		saveDatafile();
 	}
 
 	public void banAll(String claimID) {
-		if (cfg.contains("claims-ban-all" + "." + claimID + ".ban-all")) {
-			if (cfg.getBoolean("claims-ban-all" + "." + claimID + ".ban-all")) {
-				cfg.set("claims-ban-all" + "." + claimID + ".ban-all", false);
-			} else {
-				cfg.set("claims-ban-all" + "." + claimID + ".ban-all", true);
-			}
-		} else {
-			cfg.set("claims-ban-all" + "." + claimID + ".ban-all", true);
-		}
+		if (claimID == null || claimID.isBlank()) return;
+		ensureLoaded();
 
+		final boolean current = isAllBanned(claimID);
+		cfg.set(banAllValuePath(claimID), !current);
 		saveDatafile();
 	}
 
 	public boolean isAllBanned(String claimID) {
-		if (cfg.contains("claims-ban-all" + "." + claimID + ".ban-all")) {
-			return cfg.getBoolean("claims-ban-all" + "." + claimID + ".ban-all");
-		} else {
-			return false;
-		}
-	}
+		if (claimID == null || claimID.isBlank()) return false;
+		ensureLoaded();
 
-	private void removeData(String claimID, String bannedUUID) {
-		if (!cfg.getStringList(prefix + "." + claimID).isEmpty()) {
-			final List<String> uuid = new ArrayList<>(cfg.getStringList(prefix + "." + claimID));
-			if (uuid.contains(bannedUUID)) {
-				uuid.remove(bannedUUID);
-				cfg.set(prefix + "." + claimID, uuid);
-
-				if (cfg.getStringList(prefix + "." + claimID).isEmpty()) {
-					cfg.set(prefix + "." + claimID, null);
-				}
-				saveDatafile();
-			}
-		}
-	}
-
-	private boolean existData(String claimID, String bannedUUID) {
-		if (cfg.contains(prefix + "." + claimID)) {
-			if (cfg.getStringList(prefix + "." + claimID).isEmpty()) {
-				return false;
-
-			} else {
-				final List<String> uuid = new ArrayList<>(cfg.getStringList(prefix + "." + claimID));
-				return uuid.contains(bannedUUID);
-			}
-		}
-
-		return false;
+		final String path = banAllValuePath(claimID);
+		return cfg.contains(path) && cfg.getBoolean(path);
 	}
 
 	public boolean checkClaim(String claimID) {
-		return cfg.contains(prefix + "." + claimID);
+		if (claimID == null || claimID.isBlank()) return false;
+		ensureLoaded();
+		return cfg.contains(claimPath(claimID));
 	}
 
+	/**
+	 * Returns the list of banned UUIDs for this claim, or null if none exists (keeps your old behavior).
+	 */
 	public List<String> bannedPlayers(String claimID) {
-		if (cfg.contains(prefix + "." + claimID)) {
-			if (!cfg.getStringList(prefix + "." + claimID).isEmpty()) {
-				return cfg.getStringList(prefix + "." + claimID);
+		if (claimID == null || claimID.isBlank()) return null;
+		ensureLoaded();
+
+		final String path = claimPath(claimID);
+		if (!cfg.contains(path)) return null;
+
+		final List<String> list = cfg.getStringList(path);
+		if (list == null || list.isEmpty()) return null;
+
+		// Return immutable copy to prevent accidental mutation without saving
+		return Collections.unmodifiableList(new ArrayList<>(list));
+	}
+
+	// -------------------------
+	// Internals
+	// -------------------------
+
+	private void addData(String claimID, String bannedUUID) {
+		ensureLoaded();
+
+		final String path = claimPath(claimID);
+		final List<String> uuid = new ArrayList<>(cfg.getStringList(path));
+
+		uuid.add(bannedUUID);
+		cfg.set(path, uuid);
+
+		saveDatafile();
+	}
+
+	private void removeData(String claimID, String bannedUUID) {
+		ensureLoaded();
+
+		final String path = claimPath(claimID);
+		final List<String> uuid = new ArrayList<>(cfg.getStringList(path));
+
+		if (!uuid.remove(bannedUUID)) return;
+
+		if (uuid.isEmpty()) {
+			cfg.set(path, null);
+		} else {
+			cfg.set(path, uuid);
+		}
+
+		saveDatafile();
+	}
+
+	private boolean existData(String claimID, String bannedUUID) {
+		ensureLoaded();
+
+		final String path = claimPath(claimID);
+		if (!cfg.contains(path)) return false;
+
+		final List<String> list = cfg.getStringList(path);
+		return list != null && !list.isEmpty() && list.contains(bannedUUID);
+	}
+
+	private static String claimPath(String claimID) {
+		return PREFIX + "." + claimID;
+	}
+
+	private static String banAllPath(String claimID) {
+		return BAN_ALL_PREFIX + "." + claimID;
+	}
+
+	private static String banAllValuePath(String claimID) {
+		return BAN_ALL_PREFIX + "." + claimID + ".ban-all";
+	}
+
+	// -------------------------
+	// File handling
+	// -------------------------
+
+	private static synchronized void ensureLoaded() {
+		if (cfg != null) return;
+
+		final File dataFolder = BfcPlugin.getPlugin().getDataFolder();
+		if (!dataFolder.exists() && !dataFolder.mkdirs()) {
+			BfcPlugin.getPlugin().getLogger().severe("Could not create plugin data folder!");
+		}
+
+		file = new File(dataFolder, FILE_NAME);
+
+		if (!file.exists()) {
+			try {
+				if (file.createNewFile()) {
+					// create baseline structure
+					cfg = YamlConfiguration.loadConfiguration(file);
+					createSection(); // ensures root sections
+				}
+			} catch (IOException e) {
+				BfcPlugin.getPlugin().getLogger().severe("Failed to create " + FILE_NAME + ": " + e.getMessage());
 			}
 		}
 
-		return null;
+		cfg = YamlConfiguration.loadConfiguration(file);
+
+		// Ensure base sections always exist
+		if (!cfg.contains(PREFIX)) cfg.createSection(PREFIX);
+		if (!cfg.contains(BAN_ALL_PREFIX)) cfg.createSection(BAN_ALL_PREFIX);
+
+		saveDatafile(); // safe (will write only if file exists)
 	}
 
-	public static void saveDatafile() {
+	public static synchronized void saveDatafile() {
+		if (cfg == null || file == null) return;
 		try {
-			File file = new File(BfcPlugin.getPlugin().getDataFolder(), "data.dat");
-			BfcPlugin.getDataFile().save(file);
-		} catch (final IOException e) {
-			BfcPlugin.getPlugin().getLogger().severe(e.getMessage());
+			cfg.save(file);
+		} catch (IOException e) {
+			BfcPlugin.getPlugin().getLogger().severe("Failed to save " + FILE_NAME + ": " + e.getMessage());
 		}
 	}
 
-	public static void createSection() {
-		if (!BfcPlugin.getDataFile().contains("bfc_claim_data")) {
-			BfcPlugin.getDataFile().createSection("bfc_claim_data");
-		}
-		if (!BfcPlugin.getDataFile().contains("claims-ban-all")) {
-			BfcPlugin.getDataFile().createSection("claims-ban-all");
-		}
+	public static synchronized void createSection() {
+		ensureLoaded();
+		if (!cfg.contains(PREFIX)) cfg.createSection(PREFIX);
+		if (!cfg.contains(BAN_ALL_PREFIX)) cfg.createSection(BAN_ALL_PREFIX);
 		saveDatafile();
+	}
+
+	public static synchronized void reloadDatafile() {
+		if (file == null) return;
+		cfg = YamlConfiguration.loadConfiguration(file);
 	}
 }

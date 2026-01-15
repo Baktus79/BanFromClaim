@@ -1,10 +1,15 @@
 package no.vestlandetmc.BanFromClaim.config;
 
-public class Messages extends ConfigHandler {
+import no.vestlandetmc.BanFromClaim.BfcPlugin;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
-	private Messages(String fileName) {
-		super(fileName);
-	}
+import java.io.File;
+
+public final class Messages {
+
+	private static File file;
+	private static FileConfiguration cfg;
 
 	public static String
 			UNVALID_PLAYERNAME,
@@ -33,8 +38,35 @@ public class Messages extends ConfigHandler {
 			UNBAN_ALL,
 			LIST_BAN_ALL;
 
-	private void onLoad() {
+	private Messages() {}
 
+	public static void initialize() {
+		loadFromDisk();
+		applyValues();
+	}
+
+	public static void reload() {
+		loadFromDisk();
+		applyValues();
+	}
+
+	private static void loadFromDisk() {
+		if (!BfcPlugin.getPlugin().getDataFolder().exists()) {
+			//noinspection ResultOfMethodCallIgnored
+			BfcPlugin.getPlugin().getDataFolder().mkdirs();
+		}
+
+		file = new File(BfcPlugin.getPlugin().getDataFolder(), "messages.yml");
+
+		// If missing, copy default from jar
+		if (!file.exists()) {
+			BfcPlugin.getPlugin().saveResource("messages.yml", false);
+		}
+
+		cfg = YamlConfiguration.loadConfiguration(file);
+	}
+
+	private static void applyValues() {
 		UNVALID_PLAYERNAME = getString("unvalid-playername");
 		OUTSIDE_CLAIM = getString("outside-claim");
 		NO_ARGUMENTS = getString("no-arguments");
@@ -60,19 +92,21 @@ public class Messages extends ConfigHandler {
 		BAN_ALL = getString("ban-all");
 		UNBAN_ALL = getString("unban-all");
 		LIST_BAN_ALL = getString("list-ban-all");
-
 	}
 
-	public static void initialize() {
-		new Messages("messages.yml").onLoad();
+	private static String getString(String path) {
+		if (cfg == null) {
+			return "&c(messages.yml not loaded) " + path;
+		}
+		final String val = cfg.getString(path);
+		return (val == null) ? ("&cMissing message: " + path) : val;
 	}
 
 	public static String placeholders(String message, String target, String source, String claimowner) {
-		return message.
-				replaceAll("%target%", target).
-				replaceAll("%source%", source).
-				replaceAll("%claimowner%", claimowner);
-
+		if (message == null) return "";
+		return message
+				.replace("%target%", target == null ? "" : target)
+				.replace("%source%", source == null ? "" : source)
+				.replace("%claimowner%", claimowner == null ? "" : claimowner);
 	}
-
 }

@@ -3,3 +3,6 @@ combatmode:
   time: 15
   timer-enabled: true
 kickmode: true
+teleport:
+  mode: SAFE_LOCATION
+  enforce-interval-ticks: 20

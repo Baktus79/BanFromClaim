@@ -1,11 +1,17 @@
 plugins {
     id 'java'
     id 'io.freefair.lombok' version '8.13.1'
-    id "io.github.goooler.shadow" version '8.1.8'
+    id 'io.github.goooler.shadow' version '8.1.8'
 }
 
 group = 'no.vestlandetmc'
-version = '1.8.0'
+version = '1.8.3'
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
 repositories {
     mavenCentral()
@@ -15,45 +21,49 @@ repositories {
 }
 
 dependencies {
-    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly 'io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT'
-    compileOnly 'com.github.GriefPrevention:GriefPrevention:16.18.4'
+    // Core server API
+    compileOnly 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
+
+    // Supported hooks (GriefPrevention, GriefDefender)
+    compileOnly 'com.github.GriefPrevention:GriefPrevention:16.18.5'
     compileOnly 'com.griefdefender:api:2.1.1-SNAPSHOT'
+
+    // Metrics (shaded into final jar)
     implementation 'org.bstats:bstats-bukkit:3.1.0'
+
+    // Local plugin jars (optional hooks) — libs/*.jar
+    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-shadowJar {
-    relocate 'org.bstats', 'no.vestlandetmc.BanFromClaim.bstats'
-    archiveFileName.set('Banfromclaim.jar')
-}
+tasks {
+    shadowJar {
+        archiveBaseName.set("BanFromClaim")
+        archiveVersion.set(project.version.toString())
+        archiveClassifier.set("") // removes "-all"
 
-jar.dependsOn shadowJar
-
-jar {
-    enabled = false
-}
-
-def targetJavaVersion = 21
-java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+        relocate 'org.bstats', 'no.vestlandetmc.BanFromClaim.bstats'
+        minimize() // optional; remove if it ever breaks reflections
     }
-}
 
-tasks.withType(JavaCompile).configureEach {
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        options.release = targetJavaVersion
+    jar {
+        enabled = false
     }
-}
 
-processResources {
-    def props = [version: version]
-    inputs.properties props
-    filteringCharset 'UTF-8'
-    filesMatching('paper-plugin.yml') {
-        expand props
+    build {
+        dependsOn shadowJar
+    }
+
+    processResources {
+        def props = [version: version]
+        inputs.properties(props)
+        filteringCharset = 'UTF-8'
+        filesMatching('paper-plugin.yml') {
+            expand props
+        }
+    }
+
+    compileJava {
+        options.encoding = 'UTF-8'
+        options.release = 21
     }
 }
