@@ -24,13 +24,11 @@ public class RegionListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerEnterClaim(PlayerMoveEvent e) {
+		if (!e.hasExplicitlyChangedBlock()) return;
+
 		final ClaimData claimData = new ClaimData();
 		final Location locFrom = e.getFrom();
 		final Location locTo = e.getTo();
-
-		if (locFrom.getBlock().equals(locTo.getBlock())) {
-			return;
-		}
 
 		final Player player = e.getPlayer();
 		final RegionHook regionHook = BfcPlugin.getHookManager().getActiveRegionHook();
@@ -113,7 +111,7 @@ public class RegionListener implements Listener {
 	}
 
 	private boolean canBypass(Player player) {
-		return player.hasPermission("bfc.bypass") || player.getGameMode().equals(GameMode.SPECTATOR);
+		return player.getGameMode() == GameMode.SPECTATOR || player.hasPermission("bfc.bypass");
 	}
 
 	private boolean playerBanned(Player player, String claimID) {
