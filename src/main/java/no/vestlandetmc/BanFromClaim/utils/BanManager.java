@@ -99,35 +99,28 @@ public class BanManager {
 		}
 	}
 
-	public void kickPlayer(Player player) {
+	public void kickPlayer(Player player, Location locTo) {
 		final ClaimData claimData = new ClaimData();
 		final RegionHook regionHook = BfcPlugin.getHookManager().getActiveRegionHook();
-		final Location location = player.getLocation();
-		final String regionID = regionHook.getRegionID(location);
+		final String regionID = regionHook.getRegionID(locTo);
 
 		if (regionID == null) return;
-
-		final UUID ownerUUID = regionHook.getOwnerID(regionID);
-		if (ownerUUID == null) return;
-
 		if (canBypass(player)) return;
 
 		if ((claimData.isAllBanned(regionID) || playerBanned(player, regionID)) && !regionHook.hasTrust(player, regionID)) {
-			if (playerBanned(player, regionID) || claimData.isAllBanned(regionID)) {
-				final int sizeRadius = regionHook.sizeRadius(regionID);
-				final Location greaterBoundaryCorner = regionHook.getGreaterBoundaryCorner(regionID);
-				final Location lesserBoundaryCorner = regionHook.getLesserBoundaryCorner(regionID);
+			final int sizeRadius = regionHook.sizeRadius(regionID);
+			final Location greaterBoundaryCorner = regionHook.getGreaterBoundaryCorner(regionID);
+			final Location lesserBoundaryCorner = regionHook.getLesserBoundaryCorner(regionID);
 
-				final LocationFinder lf = new LocationFinder(greaterBoundaryCorner, lesserBoundaryCorner, player.getWorld().getUID(), sizeRadius);
-				Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getPlugin(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
-					if (randomCircumferenceRadiusLoc == null) {
-						if (Config.SAFE_LOCATION == null) player.teleport(player.getWorld().getSpawnLocation());
-						else player.teleport(Config.SAFE_LOCATION);
-					} else {
-						player.teleport(randomCircumferenceRadiusLoc);
-					}
-				}));
-			}
+			final LocationFinder lf = new LocationFinder(greaterBoundaryCorner, lesserBoundaryCorner, player.getWorld().getUID(), sizeRadius);
+			Bukkit.getScheduler().runTaskAsynchronously(BfcPlugin.getPlugin(), () -> lf.IterateCircumferences(randomCircumferenceRadiusLoc -> {
+				if (randomCircumferenceRadiusLoc == null) {
+					if (Config.SAFE_LOCATION == null) player.teleport(player.getWorld().getSpawnLocation());
+					else player.teleport(Config.SAFE_LOCATION);
+				} else {
+					player.teleport(randomCircumferenceRadiusLoc);
+				}
+			}));
 		}
 	}
 
