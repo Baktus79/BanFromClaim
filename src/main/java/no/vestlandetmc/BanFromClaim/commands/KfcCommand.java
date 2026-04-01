@@ -19,7 +19,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 
 @NullMarked
-@SuppressWarnings({"deprecation", "UnstableApiUsage"})
 public class KfcCommand implements BasicCommand {
 
 	@Override
@@ -43,10 +42,10 @@ public class KfcCommand implements BasicCommand {
 		}
 
 		final Player kickedPlayer = Bukkit.getPlayer(args[0]);
-		final boolean allowBan = player.hasPermission("bfc.admin") || region.isOwner(player, regionID) || region.isManager(player, regionID);
+		final boolean allowKick = player.hasPermission("bfc.admin") || region.isOwner(player, regionID) || region.isManager(player, regionID);
 
 		if (kickedPlayer == null) {
-			MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], player.getDisplayName(), null));
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], MessageHandler.compToString(player.displayName()), null));
 			return;
 		} else if (kickedPlayer == player) {
 			MessageHandler.sendMessage(player, Messages.KICK_SELF);
@@ -57,11 +56,11 @@ public class KfcCommand implements BasicCommand {
 		}
 
 		if (kickedPlayer.hasPermission("bfc.bypass")) {
-			MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, kickedPlayer.getDisplayName(), null, null));
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, MessageHandler.compToString(kickedPlayer.displayName()), null, null));
 			return;
 		}
 
-		if (!allowBan) {
+		if (!allowKick) {
 			MessageHandler.sendMessage(player, Messages.NO_ACCESS);
 		} else {
 			final String claimOwner = region.getClaimOwnerName(regionID);
@@ -85,7 +84,7 @@ public class KfcCommand implements BasicCommand {
 						kickedPlayer.teleport(randomCircumferenceRadiusLoc);
 					}
 
-					MessageHandler.sendMessage(kickedPlayer, Messages.placeholders(Messages.KICKED_TARGET, kickedPlayer.getName(), player.getDisplayName(), claimOwner));
+					MessageHandler.sendMessage(kickedPlayer, Messages.placeholders(Messages.KICKED_TARGET, kickedPlayer.getName(), MessageHandler.compToString(player.displayName()), claimOwner));
 				}));
 			}
 		}

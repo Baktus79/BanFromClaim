@@ -1,11 +1,14 @@
 package no.vestlandetmc.BanFromClaim.handler;
 
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.title.Title;
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -14,29 +17,20 @@ public class MessageHandler {
 	public static ArrayList<String> spamMessageClaim = new ArrayList<>();
 
 	public static void sendAction(Player player, String message) {
-		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(colorize(message)));
+		final Component text = colorize(message);
+		player.sendActionBar(text);
 	}
 
-	public static void sendTitle(Player player, String title, String subtitle) {
-		player.sendTitle(colorize(title), colorize(subtitle), 20, 3 * 20, 10);
+	public static void sendTitle(Player player, String maintitle, String subtitle) {
+		final Component main = colorize(maintitle);
+		final Component sub = colorize(subtitle);
+		Title title = Title.title(main, sub);
+		player.showTitle(title);
 	}
 
-	public static void sendTitle(Player player, String title, String subtitle, int stay) {
-		player.sendTitle(colorize(title), colorize(subtitle), 20, stay * 20, 10);
-	}
-
-	public static void sendMessage(Player player, String... messages) {
-		for (final String message : messages) {
-			player.sendMessage(colorize(message));
-		}
-	}
-
-	public static void sendAnnounce(String... messages) {
-		for (final Player player : Bukkit.getOnlinePlayers()) {
-			for (final String message : messages) {
-				player.sendMessage(colorize(message));
-			}
-		}
+	public static void sendMessage(Player player, String message) {
+		final Component text = colorize(message);
+		player.sendMessage(text);
 	}
 
 	public static void sendConsole(String... messages) {
@@ -45,18 +39,16 @@ public class MessageHandler {
 		}
 	}
 
-	public static String colorize(String message) {
-		return ChatColor.translateAlternateColorCodes('&', message);
+	public static @NotNull TextComponent colorize(String message) {
+		return LegacyComponentSerializer.legacy('&').deserialize(message);
 	}
 
-	public static String placeholders(String message, String time, String tpName, String tp1, String tp2) {
-
-		return message.
-				replaceAll("%time%", time).
-				replaceAll("%tpname%", tpName).
-				replaceAll("%teleport1%", tp1).
-				replaceAll("%teleport2%", tp2);
-
+	public static String compToString(Component component) {
+		return PlainTextComponentSerializer.plainText().serialize(component);
 	}
 
+	public Component miniMessage(String minimessage) {
+		final MiniMessage miniMessage = MiniMessage.miniMessage();
+		return miniMessage.deserialize(minimessage);
+	}
 }

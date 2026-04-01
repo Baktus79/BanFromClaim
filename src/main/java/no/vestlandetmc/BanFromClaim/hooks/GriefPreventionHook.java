@@ -80,7 +80,11 @@ public class GriefPreventionHook implements RegionHook, Listener {
 	@Override
 	public boolean isOwner(OfflinePlayer player, String claimID) {
 		final Claim claim = GriefPrevention.instance.dataStore.getClaim(Long.parseLong(claimID));
-		return player.getUniqueId().toString().equals(claim.getOwnerID().toString());
+		if (claim == null) {
+			return false;
+		} else {
+			return player.getUniqueId().toString().equals(claim.getOwnerID().toString());
+		}
 	}
 
 	@Override

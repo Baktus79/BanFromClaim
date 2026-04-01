@@ -12,7 +12,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 
-@SuppressWarnings("UnstableApiUsage")
 @NullMarked
 public class SafeSpot implements BasicCommand {
 

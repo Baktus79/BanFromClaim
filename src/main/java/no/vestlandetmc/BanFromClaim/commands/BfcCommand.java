@@ -21,7 +21,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 
 @NullMarked
-@SuppressWarnings({"deprecation", "UnstableApiUsage"})
 public class BfcCommand implements BasicCommand {
 
 	@Override
@@ -51,7 +50,7 @@ public class BfcCommand implements BasicCommand {
 			MessageHandler.sendMessage(player, Messages.BAN_SELF);
 			return;
 		} else if (!bannedPlayer.hasPlayedBefore()) {
-			MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], player.getDisplayName(), null));
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNVALID_PLAYERNAME, args[0], MessageHandler.compToString(player.displayName()), null));
 			return;
 		} else if (region.isOwner(bannedPlayer, regionID)) {
 			MessageHandler.sendMessage(player, Messages.BAN_OWNER);
@@ -59,7 +58,7 @@ public class BfcCommand implements BasicCommand {
 		}
 
 		if (bannedPlayer.isOnline() && bannedPlayer.getPlayer().hasPermission("bfc.bypass")) {
-			MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, bannedPlayer.getPlayer().getDisplayName(), null, null));
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.PROTECTED, MessageHandler.compToString(bannedPlayer.getPlayer().displayName()), null, null));
 			return;
 		}
 
@@ -89,7 +88,7 @@ public class BfcCommand implements BasicCommand {
 								bannedPlayer.getPlayer().teleport(randomCircumferenceRadiusLoc);
 							}
 
-							MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
+							MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.BANNED_TARGET, bannedPlayer.getName(), MessageHandler.compToString(player.displayName()), claimOwner));
 
 						}));
 					}

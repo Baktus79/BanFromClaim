@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.UUID;
 
 @NullMarked
-@SuppressWarnings({"deprecation", "UnstableApiUsage"})
 public class UnbfcCommand implements BasicCommand {
 
 	@Override
@@ -64,9 +63,9 @@ public class UnbfcCommand implements BasicCommand {
 					} else if (bannedPlayerName.equalsIgnoreCase(args[0])) {
 						bPlayer = bannedPlayer;
 						if (setClaimData(regionID, bp, false)) {
-							MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNBANNED, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
+							MessageHandler.sendMessage(player, Messages.placeholders(Messages.UNBANNED, bannedPlayer.getName(), MessageHandler.compToString(player.displayName()), claimOwner));
 							if (bannedPlayer.isOnline()) {
-								MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.UNBANNED_TARGET, bannedPlayer.getName(), player.getDisplayName(), claimOwner));
+								MessageHandler.sendMessage(bannedPlayer.getPlayer(), Messages.placeholders(Messages.UNBANNED_TARGET, bannedPlayer.getName(), MessageHandler.compToString(player.displayName()), claimOwner));
 							}
 							return;
 						}
@@ -76,7 +75,7 @@ public class UnbfcCommand implements BasicCommand {
 		}
 
 		if (bPlayer == null) {
-			MessageHandler.sendMessage(player, Messages.placeholders(Messages.NOT_BANNED, args[0], player.getDisplayName(), null));
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.NOT_BANNED, args[0], MessageHandler.compToString(player.displayName()), null));
 		}
 	}
 

@@ -1,9 +1,11 @@
 package no.vestlandetmc.BanFromClaim.config;
 
+import lombok.Setter;
 import no.vestlandetmc.BanFromClaim.BfcPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jspecify.annotations.NonNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +22,7 @@ public class ConfigHandler extends YamlConfiguration {
 
 	private final File file;
 	private final YamlConfiguration defaults;
+	@Setter
 	private String pathPrefix;
 
 	public ConfigHandler(String fileName) {
@@ -35,10 +38,6 @@ public class ConfigHandler extends YamlConfiguration {
 
 		this.file = extract(fileName);
 		loadConfig();
-	}
-
-	public void setPathPrefix(String pathPrefix) {
-		this.pathPrefix = pathPrefix;
 	}
 
 	public void reloadConfig() {
@@ -99,7 +98,7 @@ public class ConfigHandler extends YamlConfiguration {
 	}
 
 	@Override
-	public void set(String path, Object value) {
+	public void set(@NonNull String path, Object value) {
 		final String m = new Throwable().getStackTrace()[1].getMethodName();
 
 		if (defaults == null && pathPrefix != null && !m.equals("getConfigurationSection") && !m.equals("get"))

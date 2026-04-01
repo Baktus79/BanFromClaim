@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URLConnection;
 
-@SuppressWarnings("UnstableApiUsage")
 public abstract class UpdateNotification extends BukkitRunnable {
 
 	@Getter

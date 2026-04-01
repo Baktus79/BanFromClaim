@@ -17,7 +17,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 
 @NullMarked
-@SuppressWarnings("UnstableApiUsage")
 public class BfcAllCommand implements BasicCommand {
 
 	@Override

@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.UUID;
 
 @NullMarked
-@SuppressWarnings({"UnstableApiUsage", "deprecation"})
 public class BfclistCommand implements BasicCommand {
 
 	private int countTo = 5;
@@ -61,7 +60,7 @@ public class BfclistCommand implements BasicCommand {
 		if (!allowBan) {
 			MessageHandler.sendMessage(player, Messages.NO_ACCESS);
 		} else {
-			MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_HEADER, null, player.getDisplayName(), region.getClaimOwnerName(regionID)));
+			MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_HEADER, null, MessageHandler.compToString(player.displayName()), region.getClaimOwnerName(regionID)));
 
 			if (claimData.isAllBanned(regionID)) {
 				MessageHandler.sendMessage(player, Messages.LIST_BAN_ALL);
@@ -69,7 +68,7 @@ public class BfclistCommand implements BasicCommand {
 			}
 
 			if (listPlayers(regionID) == null) {
-				MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_EMPTY, null, player.getDisplayName(), region.getClaimOwnerName(regionID)));
+				MessageHandler.sendMessage(player, Messages.placeholders(Messages.LIST_EMPTY, null, MessageHandler.compToString(player.displayName()), region.getClaimOwnerName(regionID)));
 			} else {
 				totalPage = listPlayers(regionID).size() / 5 + 1;
 				for (int i = 0; i < listPlayers(regionID).toArray().length; i++) {

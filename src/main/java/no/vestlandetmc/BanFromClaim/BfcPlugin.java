@@ -14,6 +14,7 @@ import no.vestlandetmc.BanFromClaim.listener.CombatMode;
 import no.vestlandetmc.BanFromClaim.listener.PlayerListener;
 import no.vestlandetmc.BanFromClaim.listener.RegionListener;
 import no.vestlandetmc.BanFromClaim.schedulers.CombatScheduler;
+import no.vestlandetmc.BanFromClaim.utils.BanManager;
 import no.vestlandetmc.BanFromClaim.utils.UpdateNotification;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -25,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class BfcPlugin extends JavaPlugin {
 
 	@Getter
@@ -36,6 +36,8 @@ public class BfcPlugin extends JavaPlugin {
 	private static VersionManager versionManager;
 	@Getter
 	private static FileConfiguration dataFile;
+	@Getter
+	private static BanManager banManager;
 
 	@Override
 	public void onEnable() {
@@ -51,6 +53,7 @@ public class BfcPlugin extends JavaPlugin {
 		Permissions.register();
 		versionManager = new VersionManager();
 		hookManager = new HookManager();
+		banManager = new BanManager();
 
 		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
 			commands.registrar().register(
