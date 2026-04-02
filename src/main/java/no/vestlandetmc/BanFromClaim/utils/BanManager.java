@@ -33,7 +33,7 @@ public class BanManager {
 		boolean hasAttacked = false;
 
 		if (target != null && !regionHook.hasTrust(target, regionID) && !canBypass(target)
-				&& (claimData.isAllBanned(regionID) || playerBanned(target, regionID) || playerBanned(player, regionID))) {
+				&& (claimData.isAllBanned(regionID) || isPlayerBanned(target, regionID) || isPlayerBanned(player, regionID))) {
 			target.teleport(player.getLocation().add(0, 4, 0));
 		}
 
@@ -42,11 +42,11 @@ public class BanManager {
 
 		if (canBypass(player)) return;
 
-		if ((claimData.isAllBanned(regionID) || playerBanned(player, regionID)) && !hasAttacked && !regionHook.hasTrust(player, regionID)) {
+		if ((claimData.isAllBanned(regionID) || isPlayerBanned(player, regionID)) && !hasAttacked && !regionHook.hasTrust(player, regionID)) {
 			final String regionIdFrom = regionHook.getRegionID(locFrom);
 
 			if (regionIdFrom != null && regionIdFrom.equals(regionID)) {
-				if (playerBanned(player, regionID) || claimData.isAllBanned(regionID)) {
+				if (isPlayerBanned(player, regionID) || claimData.isAllBanned(regionID)) {
 					final int sizeRadius = regionHook.sizeRadius(regionID);
 					final Location greaterBoundaryCorner = regionHook.getGreaterBoundaryCorner(regionID);
 					final Location lesserBoundaryCorner = regionHook.getLesserBoundaryCorner(regionID);
@@ -107,7 +107,7 @@ public class BanManager {
 		if (regionID == null) return;
 		if (canBypass(player)) return;
 
-		if ((claimData.isAllBanned(regionID) || playerBanned(player, regionID)) && !regionHook.hasTrust(player, regionID)) {
+		if ((claimData.isAllBanned(regionID) || isPlayerBanned(player, regionID)) && !regionHook.hasTrust(player, regionID)) {
 			final int sizeRadius = regionHook.sizeRadius(regionID);
 			final Location greaterBoundaryCorner = regionHook.getGreaterBoundaryCorner(regionID);
 			final Location lesserBoundaryCorner = regionHook.getLesserBoundaryCorner(regionID);
@@ -124,11 +124,15 @@ public class BanManager {
 		}
 	}
 
+	public void banPlayer(Player player) {
+
+	}
+
 	private boolean canBypass(Player player) {
 		return player.hasPermission("bfc.bypass") || player.getGameMode().equals(GameMode.SPECTATOR);
 	}
 
-	private boolean playerBanned(Player player, String claimID) {
+	private boolean isPlayerBanned(Player player, String claimID) {
 		final ClaimData claimData = new ClaimData();
 		if (claimData.checkClaim(claimID)) {
 			if (claimData.bannedPlayers(claimID) != null) {
